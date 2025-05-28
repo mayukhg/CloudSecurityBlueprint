@@ -209,25 +209,141 @@ const issue = {
 
 ## 🌐 Deployment
 
-### Production Requirements
+### AWS CloudFormation Deployment (Recommended)
+
+The SecureAI platform includes a comprehensive CloudFormation template for production-ready AWS deployment with auto-scaling, high availability, and security best practices.
+
+#### **Infrastructure Components**
+- **ECS Fargate Cluster** - Serverless container orchestration
+- **Application Load Balancer** - High availability with SSL/TLS support
+- **PostgreSQL RDS** - Managed database with automated backups
+- **VPC with Private/Public Subnets** - Secure network architecture
+- **Auto Scaling** - Automatically scales from 1-20 instances based on demand
+- **Secrets Manager** - Secure storage for API keys and database credentials
+- **CloudWatch Logs** - Centralized logging and monitoring
+
+#### **Prerequisites**
+1. AWS CLI configured with appropriate permissions
+2. OpenAI API key for AI features
+3. SSL certificate in AWS Certificate Manager (optional but recommended)
+4. Docker image of your SecureAI application in Amazon ECR
+
+#### **Quick Deployment**
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd secureai-platform
+
+# 2. Build and push Docker image to ECR
+# First, create ECR repository
+aws ecr create-repository --repository-name secureai-platform
+
+# Get ECR login token
+aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
+
+# Build optimized production image (multi-stage build)
+docker build -t secureai-platform .
+
+# Tag and push to ECR
+docker tag secureai-platform:latest <account-id>.dkr.ecr.<region>.amazonaws.com/secureai-platform:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/secureai-platform:latest
+
+# 3. Deploy CloudFormation stack
+aws cloudformation create-stack \
+  --stack-name secureai-platform \
+  --template-body file://cloudformation-template.yaml \
+  --parameters \
+    ParameterKey=OpenAIApiKey,ParameterValue=your-openai-api-key \
+    ParameterKey=DatabasePassword,ParameterValue=your-secure-password \
+    ParameterKey=SSLCertificateArn,ParameterValue=arn:aws:acm:region:account:certificate/cert-id \
+  --capabilities CAPABILITY_NAMED_IAM
+
+# 4. Update ECS task definition with your ECR image
+aws ecs describe-task-definition --task-definition secureai-platform-task --query taskDefinition > task-def.json
+# Edit task-def.json to replace the image URL with your ECR image
+# Register updated task definition and update the service
+```
+
+#### **Configuration Parameters**
+- **ApplicationName**: Name for resource tagging (default: secureai-platform)
+- **Environment**: deployment environment (development/staging/production)
+- **OpenAIApiKey**: Your OpenAI API key for AI features
+- **DatabaseInstanceClass**: RDS instance size (db.t3.micro to db.t3.large)
+- **DesiredCapacity**: Number of ECS tasks to run (1-10)
+- **MaxCapacity**: Maximum auto-scaling capacity (1-20)
+- **SSLCertificateArn**: ACM certificate ARN for HTTPS
+
+#### **Post-Deployment Steps**
+1. **Update Task Definition**: Replace the base Node.js image with your built SecureAI image
+2. **Database Migration**: Run schema migrations on the RDS instance
+3. **DNS Configuration**: Point your domain to the Application Load Balancer
+4. **Health Check**: Verify the application is running at the Load Balancer URL
+
+#### **AWS Service Permissions**
+The CloudFormation template configures appropriate IAM roles for SecureAI to access:
+- **Security Hub** - Reading security findings across accounts
+- **GuardDuty** - Threat detection data
+- **AWS Config** - Compliance monitoring
+- **IAM** - Policy analysis and recommendations
+
+### Alternative Deployment Options
+
+#### **Local Development**
+```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your DATABASE_URL and OPENAI_API_KEY
+
+# Start the application
+npm run dev
+```
+
+#### **Manual Production Setup**
+If you prefer manual deployment without CloudFormation:
+
+**Requirements:**
 - Node.js 18+ runtime environment
-- PostgreSQL database (or compatible service)
+- PostgreSQL database (local or cloud)
 - OpenAI API access
 - SSL/TLS certificate for HTTPS
 
-### Environment Variables
+**Environment Variables:**
 ```env
 NODE_ENV=production
-DATABASE_URL=postgresql://...
-OPENAI_API_KEY=sk-...
+DATABASE_URL=postgresql://username:password@host:port/database
+OPENAI_API_KEY=sk-your-openai-api-key
 PORT=3000
 ```
 
-### Build Process
+**Build Process:**
 ```bash
 npm run build
 npm start
 ```
+
+### Monitoring and Maintenance
+
+#### **CloudWatch Logs**
+- Application logs: `/ecs/secureai-platform`
+- Retention: 30 days (production), 7 days (development)
+
+#### **Health Monitoring**
+- Application health endpoint: `/health`
+- Load balancer health checks every 30 seconds
+- Auto-scaling triggers at 70% CPU utilization
+
+#### **Database Backups**
+- Automated daily backups with 7-day retention (production)
+- Point-in-time recovery available
+- Multi-AZ deployment for high availability (production)
+
+#### **Security Updates**
+- ECS tasks automatically restart with new container images
+- Database maintenance windows: Sundays 4:00-5:00 AM UTC
+- Secrets rotation recommended every 90 days
 
 ## 🧪 Testing
 
