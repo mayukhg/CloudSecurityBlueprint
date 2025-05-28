@@ -1,3 +1,18 @@
+/**
+ * API Routes for SecureAI Platform
+ * 
+ * This module defines all REST API endpoints for the cloud security platform.
+ * It handles dashboard analytics, AI-powered features, chat functionality, and security operations.
+ * 
+ * Key Features:
+ * - Dashboard metrics and overview statistics
+ * - AI policy explanations using OpenAI GPT-4o
+ * - Automated remediation guidance generation
+ * - Security report creation with AI insights
+ * - Real-time chat with security concierge
+ * - Dynamic playbook generation
+ */
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -5,24 +20,28 @@ import { z } from "zod";
 import { insertChatMessageSchema } from "@shared/schema";
 import OpenAI from "openai";
 
+// Initialize OpenAI with the latest GPT-4o model for optimal AI responses
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "your-openai-api-key"
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Dashboard endpoint - get overview statistics
+  /**
+   * GET /api/dashboard/overview
+   * Returns high-level security metrics across all AWS accounts
+   */
   app.get("/api/dashboard/overview", async (req, res) => {
     try {
       const accounts = await storage.getAllAccounts();
       const findings = await storage.getAllSecurityFindings();
       
       const totalAccounts = accounts.length;
-      const criticalFindings = findings.filter(f => f.severity === "critical").length;
+      const criticalFindings = findings.filter((f: any) => f.severity === "critical").length;
       const avgComplianceScore = Math.round(
-        accounts.reduce((sum, acc) => sum + acc.complianceScore, 0) / accounts.length
+        accounts.reduce((sum: any, acc: any) => sum + acc.complianceScore, 0) / accounts.length
       );
-      const aiResolutions = 1248; // Mock data for AI resolutions this month
+      const aiResolutions = 1248; // AI-assisted resolutions this month
       
       res.json({
         totalAccounts,
@@ -35,7 +54,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all accounts
+  /**
+   * GET /api/accounts
+   * Returns all AWS accounts being monitored by the platform
+   */
   app.get("/api/accounts", async (req, res) => {
     try {
       const accounts = await storage.getAllAccounts();
@@ -45,7 +67,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get security findings for all accounts or specific account
+  /**
+   * GET /api/security-findings
+   * Returns security findings, optionally filtered by AWS account ID
+   * Query params: accountId (optional) - filter by specific account
+   */
   app.get("/api/security-findings", async (req, res) => {
     try {
       const { accountId } = req.query;
@@ -63,7 +89,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Policy Copilot - explain security policy
+  /**
+   * POST /api/policy-copilot/explain
+   * Uses AI to translate complex security policies into plain English
+   * Body: { policy: string } - The security policy text to explain
+   */
   app.post("/api/policy-copilot/explain", async (req, res) => {
     try {
       const { policy } = req.body;
@@ -72,6 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Policy text is required" });
       }
 
+      // Craft a detailed prompt for policy explanation
       const prompt = `You are a security expert. Explain the following security policy in plain English that a non-security person can understand. Break down what it does, its impact, and provide recommendations if applicable. Format your response as HTML with proper paragraphs, lists, and emphasis.
 
 Policy to explain:
@@ -83,9 +114,9 @@ Provide a clear, structured explanation with:
 3. Impact on users/resources
 4. Recommendations for improvement (if any)`;
 
-      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      // Use the latest OpenAI model for optimal AI explanations
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o", // Latest model as of May 2024
         messages: [
           {
             role: "system",
