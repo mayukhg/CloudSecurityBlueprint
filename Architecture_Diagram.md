@@ -4,6 +4,26 @@
 graph TB
     %% User Layer
     User[👤 Non-Technical Users<br/>Account Owners, Developers]
+    DevTeam[👥 Development Team<br/>DevOps Engineers]
+    
+    %% CI/CD Pipeline Layer
+    subgraph "CI/CD Pipeline (AWS CodePipeline)"
+        GitHub[📱 GitHub Repository<br/>Source Code & Webhook]
+        CodeBuild[🔨 AWS CodeBuild<br/>Build, Test & Docker]
+        ECR[📦 Amazon ECR<br/>Container Registry]
+        Pipeline[🔄 CodePipeline<br/>Automated Workflow]
+        Approval[✋ Manual Approval<br/>Production Gate]
+    end
+    
+    %% Infrastructure Layer
+    subgraph "AWS Infrastructure (CloudFormation)"
+        VPC[🌐 VPC<br/>Network Security]
+        ALB[⚖️ Application Load Balancer<br/>High Availability]
+        ECS[🐳 ECS Fargate<br/>Container Orchestration]
+        RDS[🗄️ PostgreSQL RDS<br/>Managed Database]
+        Secrets[🔐 Secrets Manager<br/>Secure Configuration]
+        CloudWatch[📊 CloudWatch<br/>Monitoring & Logs]
+    end
     
     %% Frontend Layer
     subgraph "Frontend (React + TypeScript)"
@@ -21,6 +41,7 @@ graph TB
         AIAPI[/api/policy-copilot/explain<br/>/api/remediation/steps<br/>/api/reports/generate]
         ChatAPI[/api/chat/messages<br/>/api/chat/message]
         PlaybookAPI[/api/playbooks<br/>/api/playbooks/generate]
+        HealthAPI[/health<br/>Health Check Endpoint]
     end
     
     %% Business Logic Layer
@@ -42,21 +63,38 @@ graph TB
         PlaybookDB[(📚 playbooks<br/>Security Procedures)]
     end
     
-    %% AWS Integration (Future)
-    subgraph "AWS Services (Integration Points)"
+    %% AWS Integration
+    subgraph "AWS Services (Security Data Sources)"
         SecurityHub[🛡️ Security Hub<br/>Findings Import]
         GuardDuty[🔍 GuardDuty<br/>Threat Detection]
         IAM[🔐 IAM<br/>Policy Analysis]
         Config[⚙️ Config<br/>Compliance Rules]
     end
     
-    %% Data Flow Connections
-    User --> Dashboard
-    User --> PolicyCopilot
-    User --> Remediation
-    User --> Reports
-    User --> Chat
-    User --> Playbooks
+    %% CI/CD Flow
+    DevTeam --> GitHub
+    GitHub --> Pipeline
+    Pipeline --> CodeBuild
+    CodeBuild --> ECR
+    ECR --> ECS
+    
+    %% Infrastructure Flow
+    ALB --> ECS
+    ECS --> RDS
+    ECS --> Secrets
+    CloudWatch --> ECS
+    VPC --> ALB
+    VPC --> ECS
+    VPC --> RDS
+    
+    %% Application Flow
+    User --> ALB
+    ALB --> Dashboard
+    ALB --> PolicyCopilot
+    ALB --> Remediation
+    ALB --> Reports
+    ALB --> Chat
+    ALB --> Playbooks
     
     Dashboard --> DashboardAPI
     PolicyCopilot --> AIAPI
@@ -72,6 +110,7 @@ graph TB
     ChatAPI --> OpenAI
     PlaybookAPI --> Storage
     PlaybookAPI --> OpenAI
+    HealthAPI --> Storage
     
     Storage --> Users
     Storage --> Accounts
@@ -79,14 +118,25 @@ graph TB
     Storage --> Messages
     Storage --> PlaybookDB
     
-    %% Future integrations (dotted lines)
-    SecurityHub -.-> Findings
-    GuardDuty -.-> Findings
-    IAM -.-> AIAPI
-    Config -.-> Accounts
+    %% AWS Service Integrations
+    SecurityHub --> Findings
+    GuardDuty --> Findings
+    IAM --> AIAPI
+    Config --> Accounts
+    
+    %% Production Gates
+    Pipeline --> Approval
+    Approval --> ECS
+    
+    %% Monitoring
+    CloudWatch --> Pipeline
+    CloudWatch --> ALB
+    CloudWatch --> RDS
     
     %% Styling
     classDef userClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef cicdClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef infraClass fill:#f1f8e9,stroke:#33691e,stroke-width:2px
     classDef frontendClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     classDef apiClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
     classDef storageClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
@@ -94,9 +144,11 @@ graph TB
     classDef dbClass fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
     classDef awsClass fill:#f1f8e9,stroke:#33691e,stroke-width:2px
     
-    class User userClass
+    class User,DevTeam userClass
+    class GitHub,CodeBuild,ECR,Pipeline,Approval cicdClass
+    class VPC,ALB,ECS,RDS,Secrets,CloudWatch infraClass
     class Dashboard,PolicyCopilot,Remediation,Reports,Chat,Playbooks frontendClass
-    class DashboardAPI,AIAPI,ChatAPI,PlaybookAPI apiClass
+    class DashboardAPI,AIAPI,ChatAPI,PlaybookAPI,HealthAPI apiClass
     class Storage storageClass
     class OpenAI aiClass
     class Users,Accounts,Findings,Messages,PlaybookDB dbClass
@@ -104,6 +156,25 @@ graph TB
 ```
 
 ## Architecture Components
+
+### 👥 User Layer
+- **Non-Technical Users**: Account owners, developers, and business stakeholders using the platform
+- **Development Team**: DevOps engineers managing CI/CD pipeline and infrastructure
+
+### 🔄 CI/CD Pipeline Layer (AWS CodePipeline)
+- **GitHub Repository**: Source code management with webhook integration
+- **AWS CodeBuild**: Automated build, test, and Docker containerization
+- **Amazon ECR**: Secure container image registry with vulnerability scanning
+- **CodePipeline**: Complete workflow automation from code to deployment
+- **Manual Approval**: Production deployment gate with email notifications
+
+### 🏗️ AWS Infrastructure Layer (CloudFormation)
+- **VPC**: Secure network isolation with public/private subnets
+- **Application Load Balancer**: High availability with SSL/TLS termination
+- **ECS Fargate**: Serverless container orchestration with auto-scaling
+- **PostgreSQL RDS**: Managed database with automated backups and encryption
+- **Secrets Manager**: Secure storage for API keys and database credentials
+- **CloudWatch**: Comprehensive monitoring, logging, and alerting
 
 ### 🎨 Frontend Layer (React + TypeScript)
 - **Dashboard**: Multi-account security overview with metrics and quick actions
@@ -118,6 +189,7 @@ graph TB
 - **AI APIs**: OpenAI integration for explanations, remediation, and reports
 - **Chat APIs**: Conversation management and AI response handling
 - **Playbook APIs**: Security procedure generation and storage
+- **Health API**: Load balancer health checks and monitoring
 
 ### 🗄️ Data Access Layer
 - **DatabaseStorage**: Repository pattern implementation
@@ -138,7 +210,7 @@ graph TB
 - **chat_messages**: AI conversation history
 - **playbooks**: Generated security procedures
 
-### ☁️ AWS Integration Points (Future)
+### ☁️ AWS Security Data Sources
 - **Security Hub**: Centralized security findings import
 - **GuardDuty**: Threat detection integration
 - **IAM**: Policy analysis and recommendations
