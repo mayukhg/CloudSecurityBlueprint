@@ -18,11 +18,21 @@ graph TB
     %% Infrastructure Layer
     subgraph "AWS Infrastructure (CloudFormation)"
         VPC[🌐 VPC<br/>Network Security]
-        ALB[⚖️ Application Load Balancer<br/>High Availability]
+        ALB[⚖️ Application Load Balancer<br/>High Availability & SSL/TLS]
         ECS[🐳 ECS Fargate<br/>Container Orchestration]
-        RDS[🗄️ PostgreSQL RDS<br/>Managed Database]
+        RDS[🗄️ PostgreSQL RDS<br/>Encrypted Database]
         Secrets[🔐 Secrets Manager<br/>Secure Configuration]
-        CloudWatch[📊 CloudWatch<br/>Monitoring & Logs]
+        CloudWatch[📊 CloudWatch<br/>Security Monitoring & Logs]
+        WAF[🛡️ AWS WAF<br/>DDoS Protection]
+    end
+    
+    %% Security Layer
+    subgraph "Security Controls"
+        RateLimit[⏱️ Rate Limiting<br/>DDoS Protection]
+        InputVal[✅ Input Validation<br/>XSS/SQL Prevention]
+        AuditLog[📝 Audit Logging<br/>Compliance Trail]
+        AuthZ[🔑 Authentication<br/>Authorization]
+        Helmet[🛡️ Security Headers<br/>CSP & CORS]
     end
     
     %% Frontend Layer
@@ -87,14 +97,19 @@ graph TB
     VPC --> ECS
     VPC --> RDS
     
-    %% Application Flow
-    User --> ALB
-    ALB --> Dashboard
-    ALB --> PolicyCopilot
-    ALB --> Remediation
-    ALB --> Reports
-    ALB --> Chat
-    ALB --> Playbooks
+    %% Application Flow with Security
+    User --> WAF
+    WAF --> ALB
+    ALB --> RateLimit
+    RateLimit --> Helmet
+    Helmet --> InputVal
+    InputVal --> AuthZ
+    AuthZ --> Dashboard
+    AuthZ --> PolicyCopilot
+    AuthZ --> Remediation
+    AuthZ --> Reports
+    AuthZ --> Chat
+    AuthZ --> Playbooks
     
     Dashboard --> DashboardAPI
     PolicyCopilot --> AIAPI
@@ -102,6 +117,11 @@ graph TB
     Reports --> AIAPI
     Chat --> ChatAPI
     Playbooks --> PlaybookAPI
+    
+    DashboardAPI --> AuditLog
+    AIAPI --> AuditLog
+    ChatAPI --> AuditLog
+    PlaybookAPI --> AuditLog
     
     DashboardAPI --> Storage
     AIAPI --> Storage
