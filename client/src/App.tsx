@@ -1,3 +1,13 @@
+/**
+ * Main Application Component for SecureAI Platform
+ * 
+ * This is the root component that sets up the application structure with:
+ * - Client-side routing using Wouter
+ * - React Query for server state management
+ * - Global providers for tooltips and notifications
+ * - Layout structure with sidebar navigation and dynamic content
+ */
+
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -13,6 +23,7 @@ import Chat from "@/pages/chat";
 import Playbooks from "@/pages/playbooks";
 import NotFound from "@/pages/not-found";
 
+// Configuration object defining all application routes and their metadata
 const pageConfig = {
   "/": {
     title: "Security Dashboard",
@@ -46,6 +57,10 @@ const pageConfig = {
   },
 };
 
+/**
+ * Router component that handles navigation and layout structure
+ * Features a fixed sidebar and dynamic main content area
+ */
 function Router() {
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -65,6 +80,10 @@ function Router() {
   );
 }
 
+/**
+ * Root application component with global providers
+ * Sets up React Query, tooltips, and toast notifications
+ */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
