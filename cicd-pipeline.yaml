@@ -1,0 +1,650 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SecureAI Platform - CI/CD Pipeline for Automated Build and Deployment'
+
+# =============================================================================
+# PARAMETERS - Configure CI/CD pipeline settings
+# =============================================================================
+Parameters:
+  # Application Configuration
+  ApplicationName:
+    Type: String
+    Default: 'secureai-platform'
+    Description: 'Name of the SecureAI application for resource naming'
+    
+  # Source Code Repository Configuration
+  GitHubOwner:
+    Type: String
+    Description: 'GitHub repository owner/organization name'
+    
+  GitHubRepo:
+    Type: String
+    Default: 'secureai-platform'
+    Description: 'GitHub repository name containing SecureAI source code'
+    
+  GitHubBranch:
+    Type: String
+    Default: 'main'
+    AllowedValues: [main, master, develop]
+    Description: 'Git branch to trigger CI/CD pipeline'
+    
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: 'GitHub personal access token for repository access'
+    MinLength: 20
+    
+  # Container Registry Configuration
+  ECRRepositoryName:
+    Type: String
+    Default: 'secureai-platform'
+    Description: 'Amazon ECR repository name for Docker images'
+    
+  # Deployment Environment Configuration
+  DeploymentEnvironment:
+    Type: String
+    Default: 'production'
+    AllowedValues: [development, staging, production]
+    Description: 'Target deployment environment'
+    
+  # ECS Configuration for Deployment
+  ECSClusterName:
+    Type: String
+    Default: 'secureai-platform-cluster'
+    Description: 'Name of the ECS cluster for deployment'
+    
+  ECSServiceName:
+    Type: String
+    Default: 'secureai-platform-service'
+    Description: 'Name of the ECS service for deployment'
+    
+  # Notification Configuration
+  NotificationEmail:
+    Type: String
+    Description: 'Email address for pipeline notifications (success/failure)'
+    Default: ''
+
+# =============================================================================
+# CONDITIONS - Control resource creation based on parameters
+# =============================================================================
+Conditions:
+  # Only create notification topic if email is provided
+  HasNotificationEmail: !Not [!Equals [!Ref NotificationEmail, '']]
+  
+  # Production environment gets additional approval step
+  IsProduction: !Equals [!Ref DeploymentEnvironment, 'production']
+
+# =============================================================================
+# RESOURCES - CI/CD Pipeline Infrastructure
+# =============================================================================
+Resources:
+
+  # ---------------------------------------------------------------------------
+  # S3 BUCKETS - Store pipeline artifacts and build outputs
+  # ---------------------------------------------------------------------------
+  
+  # S3 Bucket for CodePipeline artifacts
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ApplicationName}-pipeline-artifacts-${AWS::AccountId}'
+      # Enable versioning for artifact history
+      VersioningConfiguration:
+        Status: Enabled
+      # Encrypt all objects at rest
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      # Lifecycle policy to manage storage costs
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldArtifacts
+            Status: Enabled
+            ExpirationInDays: 30  # Delete artifacts after 30 days
+      # Block public access for security
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-pipeline-artifacts'
+        - Key: Purpose
+          Value: 'CI/CD Pipeline Artifacts'
+
+  # ---------------------------------------------------------------------------
+  # ECR REPOSITORY - Container image registry
+  # ---------------------------------------------------------------------------
+  
+  # Amazon ECR Repository for Docker images
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref ECRRepositoryName
+      # Scan images for vulnerabilities
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      # Lifecycle policy to manage image storage
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Keep last 10 production images",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": ["production"],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 2,
+                "description": "Keep last 5 development images",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": ["development", "staging"],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 5
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 3,
+                "description": "Delete untagged images after 1 day",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 1
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-ecr-repository'
+
+  # ---------------------------------------------------------------------------
+  # SNS TOPIC - Pipeline notifications
+  # ---------------------------------------------------------------------------
+  
+  # SNS Topic for pipeline notifications
+  PipelineNotificationTopic:
+    Type: AWS::SNS::Topic
+    Condition: HasNotificationEmail
+    Properties:
+      TopicName: !Sub '${ApplicationName}-pipeline-notifications'
+      DisplayName: 'SecureAI Pipeline Notifications'
+      
+  # Email subscription for notifications
+  PipelineNotificationSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasNotificationEmail
+    Properties:
+      TopicArn: !Ref PipelineNotificationTopic
+      Protocol: email
+      Endpoint: !Ref NotificationEmail
+
+  # ---------------------------------------------------------------------------
+  # IAM ROLES - Permissions for CI/CD services
+  # ---------------------------------------------------------------------------
+  
+  # CodePipeline Service Role
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ApplicationName}-codepipeline-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PipelinePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # S3 access for artifacts
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+              # CodeBuild project access
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: !GetAtt CodeBuildProject.Arn
+              # ECS deployment access
+              - Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+                Resource: '*'
+              # IAM pass role for ECS
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: '*'
+              # SNS notifications
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !If [HasNotificationEmail, !Ref PipelineNotificationTopic, !Ref 'AWS::NoValue']
+
+  # CodeBuild Service Role
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ApplicationName}-codebuild-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BuildPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # CloudWatch Logs access
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*'
+              # S3 access for artifacts
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket}/*'
+                  - !GetAtt PipelineArtifactsBucket.Arn
+              # ECR access for Docker operations
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:GetAuthorizationToken
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:PutImage
+                Resource: '*'
+              # Secrets Manager access for build secrets
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: 
+                  - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ApplicationName}/*'
+
+  # ---------------------------------------------------------------------------
+  # CODEBUILD PROJECT - Build and test automation
+  # ---------------------------------------------------------------------------
+  
+  # CodeBuild Project for SecureAI Platform
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ApplicationName}-build'
+      Description: 'Build and test SecureAI platform with Docker containerization'
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM  # 3 GB memory, 2 vCPUs
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0  # Latest Amazon Linux 2
+        PrivilegedMode: true  # Required for Docker builds
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: ECR_REPOSITORY_URI
+            Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepository}'
+          - Name: IMAGE_TAG
+            Value: 'latest'
+          - Name: ENVIRONMENT
+            Value: !Ref DeploymentEnvironment
+      Source:
+        Type: CODEPIPELINE
+        # BuildSpec inline configuration
+        BuildSpec: |
+          version: 0.2
+          
+          # CI/CD Pipeline Build Specification for SecureAI Platform
+          # This buildspec handles testing, building, and deploying the containerized application
+          
+          phases:
+            # Pre-build phase: Setup and authentication
+            pre_build:
+              commands:
+                - echo "Starting SecureAI build process on `date`"
+                - echo "Logging in to Amazon ECR..."
+                # Authenticate Docker to ECR
+                - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+                # Create repository if it doesn't exist
+                - aws ecr describe-repositories --repository-names ${ECRRepositoryName} || aws ecr create-repository --repository-name ${ECRRepositoryName}
+                - echo "Setting up build environment..."
+                - export IMAGE_URI=$ECR_REPOSITORY_URI:$IMAGE_TAG
+                - export COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+                - export IMAGE_TAG_WITH_COMMIT=$ENVIRONMENT-$COMMIT_HASH
+                
+            # Build phase: Install dependencies, run tests, build application
+            build:
+              commands:
+                - echo "Installing dependencies..."
+                - npm ci
+                
+                - echo "Running TypeScript compilation check..."
+                - npm run build
+                
+                - echo "Running security audit..."
+                - npm audit --audit-level moderate
+                
+                - echo "Building Docker image..."
+                # Build Docker image with multi-stage optimization
+                - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+                - docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG_WITH_COMMIT .
+                
+                - echo "Running container security scan..."
+                # Optional: Add container vulnerability scanning
+                - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app -w /app alpine/trivy image $ECR_REPOSITORY_URI:$IMAGE_TAG || true
+                
+            # Post-build phase: Push image and prepare deployment artifacts
+            post_build:
+              commands:
+                - echo "Build completed on `date`"
+                
+                - echo "Pushing Docker image to ECR..."
+                - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+                - docker push $ECR_REPOSITORY_URI:$IMAGE_TAG_WITH_COMMIT
+                
+                - echo "Creating deployment artifacts..."
+                # Create ECS task definition with new image
+                - |
+                  cat > task-definition.json << EOF
+                  {
+                    "family": "${ApplicationName}-task",
+                    "networkMode": "awsvpc",
+                    "requiresCompatibilities": ["FARGATE"],
+                    "cpu": "512",
+                    "memory": "1024",
+                    "executionRoleArn": "arn:aws:iam::${AWS::AccountId}:role/${ApplicationName}-ecs-execution-role",
+                    "taskRoleArn": "arn:aws:iam::${AWS::AccountId}:role/${ApplicationName}-ecs-task-role",
+                    "containerDefinitions": [
+                      {
+                        "name": "${ApplicationName}-container",
+                        "image": "$ECR_REPOSITORY_URI:$IMAGE_TAG_WITH_COMMIT",
+                        "essential": true,
+                        "portMappings": [
+                          {
+                            "containerPort": 3000,
+                            "protocol": "tcp"
+                          }
+                        ],
+                        "environment": [
+                          {
+                            "name": "NODE_ENV",
+                            "value": "$ENVIRONMENT"
+                          },
+                          {
+                            "name": "PORT",
+                            "value": "3000"
+                          }
+                        ],
+                        "secrets": [
+                          {
+                            "name": "DATABASE_URL",
+                            "valueFrom": "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ApplicationName}/$ENVIRONMENT/database:url::"
+                          },
+                          {
+                            "name": "OPENAI_API_KEY",
+                            "valueFrom": "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ApplicationName}/$ENVIRONMENT/openai:api_key::"
+                          }
+                        ],
+                        "logConfiguration": {
+                          "logDriver": "awslogs",
+                          "options": {
+                            "awslogs-group": "/ecs/${ApplicationName}",
+                            "awslogs-region": "${AWS::Region}",
+                            "awslogs-stream-prefix": "ecs"
+                          }
+                        },
+                        "healthCheck": {
+                          "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
+                          "interval": 30,
+                          "timeout": 5,
+                          "retries": 3,
+                          "startPeriod": 60
+                        }
+                      }
+                    ]
+                  }
+                  EOF
+                
+                - echo "Build successful! Image: $ECR_REPOSITORY_URI:$IMAGE_TAG_WITH_COMMIT"
+                
+          # Build artifacts to pass to deployment stage
+          artifacts:
+            files:
+              - task-definition.json
+              - cloudformation-template.yaml
+            name: SecureAIBuildArtifacts
+            
+          # Cache dependencies for faster builds
+          cache:
+            paths:
+              - '/root/.npm/**/*'
+              - 'node_modules/**/*'
+      Cache:
+        Type: S3
+        Location: !Sub '${PipelineArtifactsBucket}/build-cache'
+      TimeoutInMinutes: 20  # Build timeout
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-build-project'
+        - Key: Environment
+          Value: !Ref DeploymentEnvironment
+
+  # ---------------------------------------------------------------------------
+  # CODEPIPELINE - Automated CI/CD workflow
+  # ---------------------------------------------------------------------------
+  
+  # Main CI/CD Pipeline
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub '${ApplicationName}-pipeline'
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      Stages:
+        # Stage 1: Source - Get code from GitHub
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: '1'
+              Configuration:
+                Owner: !Ref GitHubOwner
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+                PollForSourceChanges: false  # Use webhook instead
+              OutputArtifacts:
+                - Name: SourceOutput
+                
+        # Stage 2: Build - Build and test the application
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              OnFailure:
+                ActionTypeId:
+                  Category: Invoke
+                  Owner: SNS
+                  Provider: SNS
+                  Version: '1'
+                Configuration:
+                  TopicArn: !If [HasNotificationEmail, !Ref PipelineNotificationTopic, !Ref 'AWS::NoValue']
+                  Message: 'SecureAI build failed in $AWS_REGION'
+                  
+        # Stage 3: Manual Approval (Production only)
+        - !If
+          - IsProduction
+          - Name: ManualApproval
+            Actions:
+              - Name: ManualApprovalAction
+                ActionTypeId:
+                  Category: Approval
+                  Owner: AWS
+                  Provider: Manual
+                  Version: '1'
+                Configuration:
+                  CustomData: 'Please review the build artifacts and approve deployment to production'
+                  NotificationArn: !If [HasNotificationEmail, !Ref PipelineNotificationTopic, !Ref 'AWS::NoValue']
+          - !Ref 'AWS::NoValue'
+          
+        # Stage 4: Deploy - Deploy to ECS
+        - Name: Deploy
+          Actions:
+            - Name: DeployAction
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: '1'
+              Configuration:
+                ClusterName: !Ref ECSClusterName
+                ServiceName: !Ref ECSServiceName
+                FileName: task-definition.json
+              InputArtifacts:
+                - Name: BuildOutput
+              OnSuccess:
+                ActionTypeId:
+                  Category: Invoke
+                  Owner: SNS
+                  Provider: SNS
+                  Version: '1'
+                Configuration:
+                  TopicArn: !If [HasNotificationEmail, !Ref PipelineNotificationTopic, !Ref 'AWS::NoValue']
+                  Message: 'SecureAI deployment successful in $AWS_REGION'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-pipeline'
+        - Key: Environment
+          Value: !Ref DeploymentEnvironment
+
+  # ---------------------------------------------------------------------------
+  # WEBHOOK - Automatic pipeline triggering
+  # ---------------------------------------------------------------------------
+  
+  # GitHub Webhook for automatic pipeline triggers
+  GitHubWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Name: !Sub '${ApplicationName}-github-webhook'
+      AuthenticationConfiguration:
+        SecretToken: !Ref GitHubToken
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: !Sub 'refs/heads/${GitHubBranch}'
+      Authentication: GITHUB_HMAC
+      TargetPipeline: !Ref CodePipeline
+      TargetAction: SourceAction
+      TargetPipelineVersion: !GetAtt CodePipeline.Version
+      RegisterWithThirdParty: true
+
+# =============================================================================
+# OUTPUTS - Important values for monitoring and integration
+# =============================================================================
+Outputs:
+  # Pipeline Information
+  PipelineName:
+    Description: 'Name of the CodePipeline for SecureAI'
+    Value: !Ref CodePipeline
+    Export:
+      Name: !Sub '${ApplicationName}-PipelineName'
+      
+  PipelineUrl:
+    Description: 'URL to view the CodePipeline in AWS Console'
+    Value: !Sub 'https://console.aws.amazon.com/codesuite/codepipeline/pipelines/${CodePipeline}/view'
+    
+  # Build Project Information
+  BuildProjectName:
+    Description: 'Name of the CodeBuild project'
+    Value: !Ref CodeBuildProject
+    Export:
+      Name: !Sub '${ApplicationName}-BuildProject'
+      
+  # ECR Repository Information
+  ECRRepositoryURI:
+    Description: 'URI of the ECR repository for SecureAI images'
+    Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepository}'
+    Export:
+      Name: !Sub '${ApplicationName}-ECRRepository'
+      
+  # Artifact Storage
+  ArtifactsBucket:
+    Description: 'S3 bucket storing pipeline artifacts'
+    Value: !Ref PipelineArtifactsBucket
+    Export:
+      Name: !Sub '${ApplicationName}-ArtifactsBucket'
+      
+  # Webhook Information
+  WebhookUrl:
+    Description: 'GitHub webhook URL for automatic pipeline triggers'
+    Value: !GetAtt GitHubWebhook.Url
+    
+  # Notification Topic (if created)
+  NotificationTopic:
+    Condition: HasNotificationEmail
+    Description: 'SNS topic for pipeline notifications'
+    Value: !Ref PipelineNotificationTopic
+    Export:
+      Name: !Sub '${ApplicationName}-NotificationTopic'
