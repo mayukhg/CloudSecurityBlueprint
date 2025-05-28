@@ -6,6 +6,8 @@ import {
   type ChatMessage, type InsertChatMessage,
   type Playbook, type InsertPlaybook
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -31,253 +33,226 @@ export interface IStorage {
   createPlaybook(playbook: InsertPlaybook): Promise<Playbook>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private accounts: Map<number, Account>;
-  private securityFindings: Map<number, SecurityFinding>;
-  private chatMessages: Map<number, ChatMessage>;
-  private playbooks: Map<number, Playbook>;
-  private currentUserId: number;
-  private currentAccountId: number;
-  private currentFindingId: number;
-  private currentChatId: number;
-  private currentPlaybookId: number;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.users = new Map();
-    this.accounts = new Map();
-    this.securityFindings = new Map();
-    this.chatMessages = new Map();
-    this.playbooks = new Map();
-    this.currentUserId = 1;
-    this.currentAccountId = 1;
-    this.currentFindingId = 1;
-    this.currentChatId = 1;
-    this.currentPlaybookId = 1;
-    
     this.initializeMockData();
   }
 
-  private initializeMockData() {
-    // Initialize mock accounts
-    const mockAccounts: InsertAccount[] = [
-      {
-        accountId: "123456789012",
-        name: "Production Web Services",
-        environment: "production",
-        securityScore: 72,
-        criticalFindings: 3,
-        highFindings: 7,
-        mediumFindings: 12,
-        complianceScore: 78,
-      },
-      {
-        accountId: "123456789013",
-        name: "Development API Backend",
-        environment: "development",
-        securityScore: 91,
-        criticalFindings: 0,
-        highFindings: 0,
-        mediumFindings: 1,
-        complianceScore: 96,
-      },
-      {
-        accountId: "123456789014",
-        name: "Staging Database",
-        environment: "staging",
-        securityScore: 85,
-        criticalFindings: 0,
-        highFindings: 2,
-        mediumFindings: 4,
-        complianceScore: 89,
-      },
-    ];
+  private async initializeMockData() {
+    try {
+      // Check if data already exists
+      const existingAccounts = await db.select().from(accounts).limit(1);
+      if (existingAccounts.length > 0) {
+        return; // Data already initialized
+      }
 
-    mockAccounts.forEach(account => this.createAccount(account));
+      // Initialize mock accounts
+      const mockAccounts: InsertAccount[] = [
+        {
+          accountId: "123456789012",
+          name: "Production Web Services",
+          environment: "production",
+          securityScore: 72,
+          criticalFindings: 3,
+          highFindings: 7,
+          mediumFindings: 12,
+          complianceScore: 78,
+        },
+        {
+          accountId: "123456789013",
+          name: "Development API Backend",
+          environment: "development",
+          securityScore: 91,
+          criticalFindings: 0,
+          highFindings: 0,
+          mediumFindings: 1,
+          complianceScore: 96,
+        },
+        {
+          accountId: "123456789014",
+          name: "Staging Database",
+          environment: "staging",
+          securityScore: 85,
+          criticalFindings: 0,
+          highFindings: 2,
+          mediumFindings: 4,
+          complianceScore: 89,
+        },
+      ];
 
-    // Initialize mock security findings
-    const mockFindings: InsertSecurityFinding[] = [
-      {
-        accountId: "123456789012",
-        title: "Public S3 bucket with sensitive data",
-        description: "S3 bucket allows public read access and contains sensitive customer data",
-        severity: "critical",
-        status: "in_progress",
-        service: "s3",
-        resourceId: "arn:aws:s3:::prod-customer-data",
-      },
-      {
-        accountId: "123456789012",
-        title: "Overprivileged IAM role",
-        description: "IAM role has excessive permissions including admin access",
-        severity: "high",
-        status: "open",
-        service: "iam",
-        resourceId: "arn:aws:iam::123456789012:role/ProductionRole",
-      },
-      {
-        accountId: "123456789014",
-        title: "Unencrypted RDS instance",
-        description: "RDS database instance is not encrypted at rest",
-        severity: "high",
-        status: "resolved",
-        service: "rds",
-        resourceId: "arn:aws:rds:us-east-1:123456789014:db:staging-db",
-      },
-    ];
+      await db.insert(accounts).values(mockAccounts);
 
-    mockFindings.forEach(finding => this.createSecurityFinding(finding));
+      // Initialize mock security findings
+      const mockFindings: InsertSecurityFinding[] = [
+        {
+          accountId: "123456789012",
+          title: "Public S3 bucket with sensitive data",
+          description: "S3 bucket allows public read access and contains sensitive customer data",
+          severity: "critical",
+          status: "in_progress",
+          service: "s3",
+          resourceId: "arn:aws:s3:::prod-customer-data",
+        },
+        {
+          accountId: "123456789012",
+          title: "Overprivileged IAM role",
+          description: "IAM role has excessive permissions including admin access",
+          severity: "high",
+          status: "open",
+          service: "iam",
+          resourceId: "arn:aws:iam::123456789012:role/ProductionRole",
+        },
+        {
+          accountId: "123456789014",
+          title: "Unencrypted RDS instance",
+          description: "RDS database instance is not encrypted at rest",
+          severity: "high",
+          status: "resolved",
+          service: "rds",
+          resourceId: "arn:aws:rds:us-east-1:123456789014:db:staging-db",
+        },
+      ];
 
-    // Initialize mock playbooks
-    const mockPlaybooks: InsertPlaybook[] = [
-      {
-        title: "New AWS Account Setup",
-        description: "Complete checklist for setting up baseline security controls on new AWS accounts including SCPs, GuardDuty, and Config rules.",
-        type: "new-account",
-        steps: [
-          { title: "Enable CloudTrail", description: "Set up CloudTrail for audit logging", commands: ["aws cloudtrail create-trail --name audit-trail"] },
-          { title: "Configure GuardDuty", description: "Enable GuardDuty threat detection", commands: ["aws guardduty create-detector"] },
-          { title: "Setup Config Rules", description: "Deploy baseline Config rules", commands: ["aws configservice put-config-rule"] },
-        ],
-        estimatedTime: 45,
-        difficulty: "medium",
-        status: "ready",
-      },
-      {
-        title: "Security Incident Response",
-        description: "Immediate response procedures for security incidents including containment, investigation, and recovery steps.",
-        type: "incident-response",
-        steps: [
-          { title: "Assess Impact", description: "Determine scope and severity of incident", commands: [] },
-          { title: "Contain Threat", description: "Isolate affected resources", commands: ["aws ec2 stop-instances"] },
-          { title: "Investigate", description: "Gather evidence and analyze logs", commands: ["aws logs filter-log-events"] },
-        ],
-        estimatedTime: 30,
-        difficulty: "hard",
-        status: "ready",
-      },
-    ];
+      await db.insert(securityFindings).values(mockFindings);
 
-    mockPlaybooks.forEach(playbook => this.createPlaybook(playbook));
+      // Initialize mock playbooks
+      const mockPlaybooks: InsertPlaybook[] = [
+        {
+          title: "New AWS Account Setup",
+          description: "Complete checklist for setting up baseline security controls on new AWS accounts including SCPs, GuardDuty, and Config rules.",
+          type: "new-account",
+          steps: [
+            { title: "Enable CloudTrail", description: "Set up CloudTrail for audit logging", commands: ["aws cloudtrail create-trail --name audit-trail"] },
+            { title: "Configure GuardDuty", description: "Enable GuardDuty threat detection", commands: ["aws guardduty create-detector"] },
+            { title: "Setup Config Rules", description: "Deploy baseline Config rules", commands: ["aws configservice put-config-rule"] },
+          ],
+          estimatedTime: 45,
+          difficulty: "medium",
+          status: "ready",
+        },
+        {
+          title: "Security Incident Response",
+          description: "Immediate response procedures for security incidents including containment, investigation, and recovery steps.",
+          type: "incident-response",
+          steps: [
+            { title: "Assess Impact", description: "Determine scope and severity of incident", commands: [] },
+            { title: "Contain Threat", description: "Isolate affected resources", commands: ["aws ec2 stop-instances"] },
+            { title: "Investigate", description: "Gather evidence and analyze logs", commands: ["aws logs filter-log-events"] },
+          ],
+          estimatedTime: 30,
+          difficulty: "hard",
+          status: "ready",
+        },
+      ];
+
+      await db.insert(playbooks).values(mockPlaybooks);
+    } catch (error) {
+      console.log("Mock data initialization skipped:", error);
+    }
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getAllAccounts(): Promise<Account[]> {
-    return Array.from(this.accounts.values());
+    return await db.select().from(accounts);
   }
 
   async getAccount(id: number): Promise<Account | undefined> {
-    return this.accounts.get(id);
+    const [account] = await db.select().from(accounts).where(eq(accounts.id, id));
+    return account || undefined;
   }
 
   async getAccountByAccountId(accountId: string): Promise<Account | undefined> {
-    return Array.from(this.accounts.values()).find(
-      (account) => account.accountId === accountId,
-    );
+    const [account] = await db.select().from(accounts).where(eq(accounts.accountId, accountId));
+    return account || undefined;
   }
 
   async createAccount(insertAccount: InsertAccount): Promise<Account> {
-    const id = this.currentAccountId++;
-    const account: Account = { 
-      ...insertAccount, 
-      id,
-      lastScanned: new Date(),
-    };
-    this.accounts.set(id, account);
+    const [account] = await db
+      .insert(accounts)
+      .values(insertAccount)
+      .returning();
     return account;
   }
 
   async updateAccount(id: number, updates: Partial<Account>): Promise<Account | undefined> {
-    const account = this.accounts.get(id);
-    if (!account) return undefined;
-    
-    const updatedAccount = { ...account, ...updates };
-    this.accounts.set(id, updatedAccount);
-    return updatedAccount;
+    const [account] = await db
+      .update(accounts)
+      .set(updates)
+      .where(eq(accounts.id, id))
+      .returning();
+    return account || undefined;
   }
 
   async getSecurityFindingsByAccount(accountId: string): Promise<SecurityFinding[]> {
-    return Array.from(this.securityFindings.values()).filter(
-      (finding) => finding.accountId === accountId,
-    );
+    return await db.select().from(securityFindings).where(eq(securityFindings.accountId, accountId));
   }
 
   async getAllSecurityFindings(): Promise<SecurityFinding[]> {
-    return Array.from(this.securityFindings.values());
+    return await db.select().from(securityFindings);
   }
 
   async createSecurityFinding(insertFinding: InsertSecurityFinding): Promise<SecurityFinding> {
-    const id = this.currentFindingId++;
-    const finding: SecurityFinding = { 
-      ...insertFinding, 
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.securityFindings.set(id, finding);
+    const [finding] = await db
+      .insert(securityFindings)
+      .values(insertFinding)
+      .returning();
     return finding;
   }
 
   async updateSecurityFinding(id: number, updates: Partial<SecurityFinding>): Promise<SecurityFinding | undefined> {
-    const finding = this.securityFindings.get(id);
-    if (!finding) return undefined;
-    
-    const updatedFinding = { ...finding, ...updates, updatedAt: new Date() };
-    this.securityFindings.set(id, updatedFinding);
-    return updatedFinding;
+    const [finding] = await db
+      .update(securityFindings)
+      .set(updates)
+      .where(eq(securityFindings.id, id))
+      .returning();
+    return finding || undefined;
   }
 
   async getChatMessages(sessionId: string): Promise<ChatMessage[]> {
-    return Array.from(this.chatMessages.values())
-      .filter((message) => message.sessionId === sessionId)
-      .sort((a, b) => a.timestamp!.getTime() - b.timestamp!.getTime());
+    return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
   }
 
   async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
-    const id = this.currentChatId++;
-    const message: ChatMessage = { 
-      ...insertMessage, 
-      id,
-      timestamp: new Date(),
-    };
-    this.chatMessages.set(id, message);
+    const [message] = await db
+      .insert(chatMessages)
+      .values(insertMessage)
+      .returning();
     return message;
   }
 
   async getAllPlaybooks(): Promise<Playbook[]> {
-    return Array.from(this.playbooks.values());
+    return await db.select().from(playbooks);
   }
 
   async getPlaybook(id: number): Promise<Playbook | undefined> {
-    return this.playbooks.get(id);
+    const [playbook] = await db.select().from(playbooks).where(eq(playbooks.id, id));
+    return playbook || undefined;
   }
 
   async createPlaybook(insertPlaybook: InsertPlaybook): Promise<Playbook> {
-    const id = this.currentPlaybookId++;
-    const playbook: Playbook = { 
-      ...insertPlaybook, 
-      id,
-      createdAt: new Date(),
-    };
-    this.playbooks.set(id, playbook);
+    const [playbook] = await db
+      .insert(playbooks)
+      .values(insertPlaybook)
+      .returning();
     return playbook;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
