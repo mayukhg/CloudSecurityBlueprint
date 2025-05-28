@@ -324,16 +324,144 @@ npm run build
 npm start
 ```
 
+## 🔄 CI/CD Pipeline
+
+SecureAI includes a comprehensive CI/CD pipeline for automated testing, building, and deployment using AWS CodePipeline and CodeBuild.
+
+### **Pipeline Features**
+- **Automated Builds** - Triggered by GitHub commits with webhook integration
+- **Quality Gates** - TypeScript compilation, security audits, and container scanning
+- **Multi-Environment** - Support for development, staging, and production deployments
+- **Manual Approval** - Production deployments require manual approval for safety
+- **Notifications** - Email alerts for build success/failure and deployment status
+
+### **Pipeline Architecture**
+```
+GitHub Push → CodePipeline → CodeBuild → ECR → ECS Deployment
+     ↓            ↓            ↓         ↓         ↓
+  Webhook    Artifact S3   Docker Build  Image   Rolling Update
+             Storage       & Test        Push    with Health Checks
+```
+
+### **Setup CI/CD Pipeline**
+
+#### **Prerequisites**
+1. GitHub repository with SecureAI source code
+2. GitHub personal access token with repo permissions
+3. AWS CLI configured with appropriate permissions
+4. Existing ECS cluster and service (from CloudFormation template)
+
+#### **Deploy Pipeline Infrastructure**
+```bash
+# Deploy the CI/CD pipeline
+aws cloudformation create-stack \
+  --stack-name secureai-cicd-pipeline \
+  --template-body file://cicd-pipeline.yaml \
+  --parameters \
+    ParameterKey=GitHubOwner,ParameterValue=your-github-username \
+    ParameterKey=GitHubRepo,ParameterValue=secureai-platform \
+    ParameterKey=GitHubToken,ParameterValue=ghp_your_github_token \
+    ParameterKey=NotificationEmail,ParameterValue=devops@yourcompany.com \
+    ParameterKey=ECSClusterName,ParameterValue=secureai-platform-cluster \
+    ParameterKey=ECSServiceName,ParameterValue=secureai-platform-service \
+  --capabilities CAPABILITY_NAMED_IAM
+```
+
+#### **Pipeline Configuration Parameters**
+- **GitHubOwner**: Your GitHub username or organization
+- **GitHubRepo**: Repository name (default: secureai-platform)
+- **GitHubBranch**: Branch to monitor (main/master/develop)
+- **GitHubToken**: Personal access token for repository access
+- **DeploymentEnvironment**: Target environment (development/staging/production)
+- **NotificationEmail**: Email for build and deployment notifications
+
+### **Automated Workflow**
+
+#### **Stage 1: Source**
+- Monitors GitHub repository for commits
+- Automatically downloads source code on push
+- Webhook-triggered for immediate response
+
+#### **Stage 2: Build & Test**
+```yaml
+# Automated build process includes:
+- npm ci                    # Install dependencies
+- npm run build             # TypeScript compilation
+- npm audit                 # Security vulnerability scan
+- docker build              # Multi-stage container build
+- container security scan   # Image vulnerability assessment
+- docker push to ECR        # Secure image registry upload
+```
+
+#### **Stage 3: Manual Approval** (Production Only)
+- Email notification sent to approval team
+- Manual review and approval required
+- Deployment blocked until approved
+
+#### **Stage 4: Deploy**
+- ECS task definition updated with new image
+- Rolling deployment with health checks
+- Automatic rollback on deployment failure
+- Email notification on deployment completion
+
+### **Build Artifacts & Caching**
+- **Artifact Storage**: S3 bucket with 30-day retention
+- **Build Caching**: NPM modules cached for faster builds
+- **Image Versioning**: Tagged with environment and commit hash
+- **Security Scanning**: Container vulnerability assessment
+
+### **Monitoring CI/CD Pipeline**
+
+#### **Pipeline Monitoring**
+- View pipeline status: AWS CodePipeline Console
+- Build logs: CloudWatch Logs `/aws/codebuild/secureai-platform-build`
+- Deployment metrics: ECS service events and CloudWatch
+
+#### **Key Metrics**
+- **Build Time**: Typically 5-8 minutes for full pipeline
+- **Deployment Time**: 2-3 minutes for rolling ECS update
+- **Success Rate**: Target >95% pipeline success rate
+- **Image Size**: Optimized multi-stage builds ~150MB
+
+### **Troubleshooting Common Issues**
+
+#### **Build Failures**
+```bash
+# Check build logs
+aws logs describe-log-streams --log-group-name /aws/codebuild/secureai-platform-build
+
+# View specific build details
+aws codebuild batch-get-builds --ids <build-id>
+```
+
+#### **Deployment Issues**
+```bash
+# Check ECS service events
+aws ecs describe-services --cluster secureai-platform-cluster --services secureai-platform-service
+
+# View task definition
+aws ecs describe-task-definition --task-definition secureai-platform-task
+```
+
+### **Security & Best Practices**
+- **IAM Roles**: Least-privilege access for all pipeline components
+- **Secrets Management**: Integration with AWS Secrets Manager
+- **Encryption**: All artifacts encrypted at rest and in transit
+- **Access Control**: Role-based permissions for pipeline operations
+- **Audit Trail**: Complete CloudTrail logging for compliance
+
 ### Monitoring and Maintenance
 
 #### **CloudWatch Logs**
 - Application logs: `/ecs/secureai-platform`
+- Build logs: `/aws/codebuild/secureai-platform-build`
 - Retention: 30 days (production), 7 days (development)
 
 #### **Health Monitoring**
 - Application health endpoint: `/health`
 - Load balancer health checks every 30 seconds
 - Auto-scaling triggers at 70% CPU utilization
+- Pipeline success/failure notifications via SNS
 
 #### **Database Backups**
 - Automated daily backups with 7-day retention (production)
@@ -341,9 +469,16 @@ npm start
 - Multi-AZ deployment for high availability (production)
 
 #### **Security Updates**
-- ECS tasks automatically restart with new container images
+- Automated container image updates through CI/CD pipeline
 - Database maintenance windows: Sundays 4:00-5:00 AM UTC
 - Secrets rotation recommended every 90 days
+- Regular dependency updates via automated PRs
+
+#### **Cost Optimization**
+- ECR lifecycle policies automatically clean up old images
+- S3 artifact lifecycle management (30-day retention)
+- CodeBuild caching reduces build times and costs
+- ECS Fargate Spot instances for development environments
 
 ## 🧪 Testing
 
