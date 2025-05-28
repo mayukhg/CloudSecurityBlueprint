@@ -1,0 +1,759 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SecureAI Platform - AI-Powered Cloud Security Democratization Infrastructure'
+
+# =============================================================================
+# PARAMETERS - Configure deployment settings
+# =============================================================================
+Parameters:
+  # Application Configuration
+  ApplicationName:
+    Type: String
+    Default: 'secureai-platform'
+    Description: 'Name of the SecureAI application for resource naming'
+    
+  Environment:
+    Type: String
+    Default: 'production'
+    AllowedValues: [development, staging, production]
+    Description: 'Deployment environment (development, staging, production)'
+    
+  # OpenAI Configuration
+  OpenAIApiKey:
+    Type: String
+    NoEcho: true
+    Description: 'OpenAI API key for GPT-4o integration (required for AI features)'
+    MinLength: 20
+    
+  # Database Configuration
+  DatabaseInstanceClass:
+    Type: String
+    Default: 'db.t3.micro'
+    AllowedValues: [db.t3.micro, db.t3.small, db.t3.medium, db.t3.large]
+    Description: 'RDS PostgreSQL instance class for the SecureAI database'
+    
+  DatabaseName:
+    Type: String
+    Default: 'secureai'
+    Description: 'Name of the PostgreSQL database'
+    
+  DatabaseUsername:
+    Type: String
+    Default: 'secureai_admin'
+    Description: 'Master username for the PostgreSQL database'
+    
+  DatabasePassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    MaxLength: 128
+    Description: 'Master password for the PostgreSQL database (min 8 characters)'
+    
+  # Application Scaling Configuration
+  DesiredCapacity:
+    Type: Number
+    Default: 2
+    MinValue: 1
+    MaxValue: 10
+    Description: 'Desired number of ECS tasks running the SecureAI application'
+    
+  MaxCapacity:
+    Type: Number
+    Default: 6
+    MinValue: 1
+    MaxValue: 20
+    Description: 'Maximum number of ECS tasks for auto-scaling'
+    
+  # SSL Certificate
+  SSLCertificateArn:
+    Type: String
+    Description: 'ARN of SSL certificate for HTTPS (use AWS Certificate Manager)'
+    Default: ''
+
+# =============================================================================
+# CONDITIONS - Control resource creation based on parameters
+# =============================================================================
+Conditions:
+  # Only create SSL listener if certificate is provided
+  HasSSLCertificate: !Not [!Equals [!Ref SSLCertificateArn, '']]
+  
+  # Production environment gets enhanced monitoring and backup
+  IsProduction: !Equals [!Ref Environment, 'production']
+
+# =============================================================================
+# RESOURCES - AWS Infrastructure Components
+# =============================================================================
+Resources:
+
+  # ---------------------------------------------------------------------------
+  # NETWORKING - VPC, Subnets, Security Groups
+  # ---------------------------------------------------------------------------
+  
+  # Virtual Private Cloud for secure network isolation
+  SecureAIVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: '10.0.0.0/16'
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-vpc'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: !Ref ApplicationName
+
+  # Internet Gateway for public internet access
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-igw'
+
+  # Attach Internet Gateway to VPC
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref SecureAIVPC
+
+  # Public Subnet 1 (for Load Balancer in AZ1)
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: '10.0.1.0/24'
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-public-subnet-1'
+
+  # Public Subnet 2 (for Load Balancer in AZ2)
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: '10.0.2.0/24'
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-public-subnet-2'
+
+  # Private Subnet 1 (for Application and Database in AZ1)
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: '10.0.11.0/24'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-private-subnet-1'
+
+  # Private Subnet 2 (for Application and Database in AZ2)
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: '10.0.12.0/24'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-private-subnet-2'
+
+  # NAT Gateway for private subnet internet access
+  NatGateway1EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  # Route Tables for network traffic routing
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-public-routes'
+
+  # Route to Internet Gateway for public subnets
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  # Associate public subnets with public route table
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  # Private route table for application subnets
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref SecureAIVPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-private-routes-1'
+
+  # Route to NAT Gateway for private subnet internet access
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NatGateway1
+
+  # Associate private subnets with private route table
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet2
+
+  # ---------------------------------------------------------------------------
+  # SECURITY GROUPS - Network access control
+  # ---------------------------------------------------------------------------
+
+  # Load Balancer Security Group (allows HTTP/HTTPS from internet)
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${ApplicationName}-alb-sg'
+      GroupDescription: 'Security group for SecureAI Application Load Balancer'
+      VpcId: !Ref SecureAIVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+          Description: 'HTTP access from internet'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+          Description: 'HTTPS access from internet'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-alb-sg'
+
+  # ECS Tasks Security Group (allows traffic from Load Balancer)
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${ApplicationName}-ecs-sg'
+      GroupDescription: 'Security group for SecureAI ECS tasks'
+      VpcId: !Ref SecureAIVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+          Description: 'Application port from Load Balancer'
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: '0.0.0.0/0'
+          Description: 'All outbound traffic (for OpenAI API calls)'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-ecs-sg'
+
+  # Database Security Group (allows access only from ECS tasks)
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${ApplicationName}-db-sg'
+      GroupDescription: 'Security group for SecureAI PostgreSQL database'
+      VpcId: !Ref SecureAIVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ECSSecurityGroup
+          Description: 'PostgreSQL access from ECS tasks'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-db-sg'
+
+  # ---------------------------------------------------------------------------
+  # DATABASE - PostgreSQL RDS Instance
+  # ---------------------------------------------------------------------------
+
+  # Database Subnet Group (spans multiple AZs for high availability)
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub '${ApplicationName}-db-subnet-group'
+      DBSubnetGroupDescription: 'Subnet group for SecureAI PostgreSQL database'
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-db-subnet-group'
+
+  # PostgreSQL Database Instance
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot  # Create snapshot before deletion
+    Properties:
+      DBInstanceIdentifier: !Sub '${ApplicationName}-${Environment}-db'
+      DBInstanceClass: !Ref DatabaseInstanceClass
+      Engine: postgres
+      EngineVersion: '14.9'  # Latest stable PostgreSQL version
+      DBName: !Ref DatabaseName
+      MasterUsername: !Ref DatabaseUsername
+      MasterUserPassword: !Ref DatabasePassword
+      AllocatedStorage: 20
+      MaxAllocatedStorage: 100  # Auto-scaling storage
+      StorageType: gp2
+      StorageEncrypted: true  # Encrypt data at rest
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      BackupRetentionPeriod: !If [IsProduction, 7, 1]  # 7 days for prod, 1 for dev
+      PreferredBackupWindow: '03:00-04:00'  # UTC backup window
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'  # UTC maintenance window
+      MultiAZ: !If [IsProduction, true, false]  # Multi-AZ for production
+      DeletionProtection: !If [IsProduction, true, false]  # Deletion protection for production
+      MonitoringInterval: !If [IsProduction, 60, 0]  # Enhanced monitoring for production
+      EnablePerformanceInsights: !If [IsProduction, true, false]
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-database'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # SECRETS MANAGER - Secure storage for sensitive configuration
+  # ---------------------------------------------------------------------------
+
+  # Database connection string secret
+  DatabaseSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${ApplicationName}/${Environment}/database'
+      Description: 'Database connection string for SecureAI platform'
+      SecretString: !Sub |
+        {
+          "username": "${DatabaseUsername}",
+          "password": "${DatabasePassword}",
+          "engine": "postgres",
+          "host": "${DatabaseInstance.Endpoint.Address}",
+          "port": ${DatabaseInstance.Endpoint.Port},
+          "dbname": "${DatabaseName}",
+          "url": "postgresql://${DatabaseUsername}:${DatabasePassword}@${DatabaseInstance.Endpoint.Address}:${DatabaseInstance.Endpoint.Port}/${DatabaseName}"
+        }
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-database-secret'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # OpenAI API key secret
+  OpenAISecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${ApplicationName}/${Environment}/openai'
+      Description: 'OpenAI API key for SecureAI AI features'
+      SecretString: !Sub |
+        {
+          "api_key": "${OpenAIApiKey}"
+        }
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-openai-secret'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # IAM ROLES - Permissions for ECS tasks
+  # ---------------------------------------------------------------------------
+
+  # ECS Task Execution Role (for ECS to pull images and write logs)
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ApplicationName}-ecs-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: SecretsManagerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref DatabaseSecret
+                  - !Ref OpenAISecret
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-ecs-execution-role'
+
+  # ECS Task Role (for application to access AWS services)
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ApplicationName}-ecs-task-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SecureAIApplicationPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Access to Security Hub for reading security findings
+              - Effect: Allow
+                Action:
+                  - securityhub:GetFindings
+                  - securityhub:GetInsights
+                  - securityhub:DescribeHub
+                Resource: '*'
+              # Access to GuardDuty for threat detection data
+              - Effect: Allow
+                Action:
+                  - guardduty:GetFindings
+                  - guardduty:ListFindings
+                  - guardduty:GetDetector
+                Resource: '*'
+              # Access to Config for compliance data
+              - Effect: Allow
+                Action:
+                  - config:GetComplianceDetailsByConfigRule
+                  - config:GetComplianceDetailsByResource
+                  - config:DescribeConfigRules
+                Resource: '*'
+              # Access to IAM for policy analysis
+              - Effect: Allow
+                Action:
+                  - iam:GetPolicy
+                  - iam:GetPolicyVersion
+                  - iam:ListPolicies
+                  - iam:SimulatePrincipalPolicy
+                Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-ecs-task-role'
+
+  # ---------------------------------------------------------------------------
+  # ECS CLUSTER - Container orchestration
+  # ---------------------------------------------------------------------------
+
+  # ECS Cluster for running SecureAI containers
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub '${ApplicationName}-cluster'
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: !If [IsProduction, 0, 1]  # Use Spot for dev, Fargate for prod
+      ClusterSettings:
+        - Name: containerInsights
+          Value: !If [IsProduction, 'enabled', 'disabled']
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-cluster'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # CloudWatch Log Group for application logs
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/${ApplicationName}'
+      RetentionInDays: !If [IsProduction, 30, 7]
+
+  # ECS Task Definition
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${ApplicationName}-task'
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: !Sub '${ApplicationName}-container'
+          Image: 'node:18-alpine'  # Base Node.js image (will be replaced with your built image)
+          Essential: true
+          PortMappings:
+            - ContainerPort: 3000
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: !Ref Environment
+            - Name: PORT
+              Value: '3000'
+          Secrets:
+            - Name: DATABASE_URL
+              ValueFrom: !Sub '${DatabaseSecret}:url::'
+            - Name: OPENAI_API_KEY
+              ValueFrom: !Sub '${OpenAISecret}:api_key::'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          # Health check to ensure application is responding
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - 'curl -f http://localhost:3000/health || exit 1'
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 60
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-task'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # LOAD BALANCER - Application Load Balancer for high availability
+  # ---------------------------------------------------------------------------
+
+  # Application Load Balancer
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub '${ApplicationName}-alb'
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-alb'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Target Group for ECS tasks
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${ApplicationName}-tg'
+      Port: 3000
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref SecureAIVPC
+      HealthCheckEnabled: true
+      HealthCheckPath: '/health'  # Application health check endpoint
+      HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: 200
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-target-group'
+
+  # HTTP Listener (redirects to HTTPS if certificate is provided)
+  HTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: !If
+          - HasSSLCertificate
+          - redirect
+          - forward
+          RedirectConfig: !If
+            - HasSSLCertificate
+            - Protocol: HTTPS
+              Port: 443
+              StatusCode: HTTP_301
+            - !Ref AWS::NoValue
+          TargetGroupArn: !If
+            - HasSSLCertificate
+            - !Ref AWS::NoValue
+            - !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # HTTPS Listener (only created if SSL certificate is provided)
+  HTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: HasSSLCertificate
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref SSLCertificateArn
+
+  # ---------------------------------------------------------------------------
+  # ECS SERVICE - Auto-scaling container service
+  # ---------------------------------------------------------------------------
+
+  # ECS Service with auto-scaling
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn: HTTPListener
+    Properties:
+      ServiceName: !Sub '${ApplicationName}-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !Ref DesiredCapacity
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets:
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+          AssignPublicIp: DISABLED  # Tasks run in private subnets
+      LoadBalancers:
+        - ContainerName: !Sub '${ApplicationName}-container'
+          ContainerPort: 3000
+          TargetGroupArn: !Ref TargetGroup
+      HealthCheckGracePeriodSeconds: 120
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-service'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Auto Scaling Target
+  ServiceScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !Ref MaxCapacity
+      MinCapacity: 1
+      ResourceId: !Sub 'service/${ECSCluster}/${ECSService.Name}'
+      RoleARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  # Auto Scaling Policy based on CPU utilization
+  ServiceScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${ApplicationName}-cpu-scaling'
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ServiceScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        TargetValue: 70.0  # Scale up when CPU > 70%
+        ScaleOutCooldown: 300  # 5 minute cooldown
+        ScaleInCooldown: 300
+
+# =============================================================================
+# OUTPUTS - Important values for reference and integration
+# =============================================================================
+Outputs:
+  # Load Balancer URL
+  LoadBalancerURL:
+    Description: 'URL of the SecureAI Application Load Balancer'
+    Value: !Sub 'http://${LoadBalancer.DNSName}'
+    Export:
+      Name: !Sub '${ApplicationName}-LoadBalancerURL'
+
+  # Secure HTTPS URL (if SSL certificate is provided)
+  SecureURL:
+    Condition: HasSSLCertificate
+    Description: 'Secure HTTPS URL of the SecureAI platform'
+    Value: !Sub 'https://${LoadBalancer.DNSName}'
+    Export:
+      Name: !Sub '${ApplicationName}-SecureURL'
+
+  # Database endpoint for external connections
+  DatabaseEndpoint:
+    Description: 'PostgreSQL database endpoint'
+    Value: !GetAtt DatabaseInstance.Endpoint.Address
+    Export:
+      Name: !Sub '${ApplicationName}-DatabaseEndpoint'
+
+  # VPC ID for additional resources
+  VPCId:
+    Description: 'ID of the SecureAI VPC'
+    Value: !Ref SecureAIVPC
+    Export:
+      Name: !Sub '${ApplicationName}-VPC'
+
+  # Private subnet IDs for additional services
+  PrivateSubnets:
+    Description: 'Private subnet IDs for SecureAI infrastructure'
+    Value: !Sub '${PrivateSubnet1},${PrivateSubnet2}'
+    Export:
+      Name: !Sub '${ApplicationName}-PrivateSubnets'
+
+  # ECS Cluster name for additional services
+  ECSCluster:
+    Description: 'Name of the ECS cluster running SecureAI'
+    Value: !Ref ECSCluster
+    Export:
+      Name: !Sub '${ApplicationName}-ECSCluster'
+
+  # Secrets Manager ARNs for application configuration
+  DatabaseSecretArn:
+    Description: 'ARN of the database connection secret'
+    Value: !Ref DatabaseSecret
+    Export:
+      Name: !Sub '${ApplicationName}-DatabaseSecret'
+
+  OpenAISecretArn:
+    Description: 'ARN of the OpenAI API key secret'
+    Value: !Ref OpenAISecret
+    Export:
+      Name: !Sub '${ApplicationName}-OpenAISecret'
