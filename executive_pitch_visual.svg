@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for visual appeal -->
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1976d2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#42a5f5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="problemGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffebee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffcdd2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="solutionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f5e8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c8e6c9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="marketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fff3e0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffe0b2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="financialGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3e5f5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e1bee7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="competitiveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="1200" fill="#fafafa"/>
+
+  <!-- Header Section -->
+  <rect x="0" y="0" width="1600" height="120" fill="url(#headerGradient)"/>
+  <text x="800" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white">
+    SecureAI Platform
+  </text>
+  <text x="800" y="75" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="white">
+    Democratizing Cloud Security Through AI-Powered Intelligence
+  </text>
+  <text x="800" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#e3f2fd">
+    Series A Investment Opportunity • $68.6B Market • First-Mover Advantage
+  </text>
+
+  <!-- Problem Section -->
+  <g id="problemSection">
+    <rect x="50" y="150" width="750" height="280" rx="15" fill="url(#problemGradient)" stroke="#d32f2f" stroke-width="3"/>
+    <text x="425" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#c62828">
+      🚨 The Critical Problem
+    </text>
+    
+    <!-- Problem Stats -->
+    <rect x="80" y="200" width="200" height="90" rx="10" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+    <text x="180" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">3.5M Unfilled</text>
+    <text x="180" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="14">Cybersecurity Jobs</text>
+    <text x="180" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Critical skills shortage</text>
+    <text x="180" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">blocking cloud adoption</text>
+
+    <rect x="300" y="200" width="200" height="90" rx="10" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+    <text x="400" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">72 Hours</text>
+    <text x="400" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="14">Average Resolution</text>
+    <text x="400" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Simple security issues</text>
+    <text x="400" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">block development</text>
+
+    <rect x="520" y="200" width="200" height="90" rx="10" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+    <text x="620" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">2,400 Requests</text>
+    <text x="620" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="14">Monthly Support</text>
+    <text x="620" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Security teams</text>
+    <text x="620" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">overwhelmed</text>
+
+    <!-- Problem Description -->
+    <text x="100" y="320" font-family="Arial, sans-serif" font-size="14" fill="#424242">
+      • Complex AWS security policies incomprehensible to non-security teams
+    </text>
+    <text x="100" y="340" font-family="Arial, sans-serif" font-size="14" fill="#424242">
+      • Development teams dependent on security experts for basic questions
+    </text>
+    <text x="100" y="360" font-family="Arial, sans-serif" font-size="14" fill="#424242">
+      • Manual remediation processes slow and error-prone
+    </text>
+    <text x="100" y="380" font-family="Arial, sans-serif" font-size="14" fill="#424242">
+      • Security becomes bottleneck instead of enabler for cloud innovation
+    </text>
+    <text x="100" y="400" font-family="Arial, sans-serif" font-size="14" fill="#424242">
+      • $8.4M average cost of data breaches due to delayed responses
+    </text>
+  </g>
+
+  <!-- Solution Section -->
+  <g id="solutionSection">
+    <rect x="850" y="150" width="700" height="280" rx="15" fill="url(#solutionGradient)" stroke="#388e3c" stroke-width="3"/>
+    <text x="1200" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2e7d32">
+      🎯 Our AI-Powered Solution
+    </text>
+
+    <!-- Solution Features -->
+    <rect x="880" y="200" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="960" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🔍 Policy Copilot</text>
+    <text x="960" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Plain English</text>
+    <text x="960" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Explanations</text>
+    <text x="960" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">90% ↓ Questions</text>
+
+    <rect x="1060" y="200" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="1140" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🛠️ AI Remediation</text>
+    <text x="1140" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Step-by-Step</text>
+    <text x="1140" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Guidance</text>
+    <text x="1140" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">60% ↓ Time</text>
+
+    <rect x="1240" y="200" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="1320" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">💬 Security Chat</text>
+    <text x="1320" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">24/7 AI Expert</text>
+    <text x="1320" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Assistant</text>
+    <text x="1320" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Instant Help</text>
+
+    <rect x="880" y="295" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="960" y="315" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📊 Dashboard</text>
+    <text x="960" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">2,000+ Accounts</text>
+    <text x="960" y="343" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Monitoring</text>
+    <text x="960" y="363" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Unified View</text>
+
+    <rect x="1060" y="295" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="1140" y="315" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📈 AI Reports</text>
+    <text x="1140" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Business-Friendly</text>
+    <text x="1140" y="343" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Insights</text>
+    <text x="1140" y="363" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Executive Ready</text>
+
+    <rect x="1240" y="295" width="160" height="80" rx="8" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="1320" y="315" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📋 Playbooks</text>
+    <text x="1320" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Automated</text>
+    <text x="1320" y="343" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Procedures</text>
+    <text x="1320" y="363" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Standardized</text>
+
+    <!-- Value Proposition -->
+    <text x="1200" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1b5e20">
+      "Transform every team member into a security-aware stakeholder"
+    </text>
+  </g>
+
+  <!-- Market Opportunity Section -->
+  <g id="marketSection">
+    <rect x="50" y="460" width="500" height="220" rx="15" fill="url(#marketGradient)" stroke="#f57c00" stroke-width="3"/>
+    <text x="300" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#e65100">
+      📈 Massive Market Opportunity
+    </text>
+
+    <!-- Market Size Circle -->
+    <circle cx="180" cy="570" r="60" fill="#ffe0b2" stroke="#ff9800" stroke-width="3"/>
+    <text x="180" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">$68.6B</text>
+    <text x="180" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Cloud Security</text>
+    <text x="180" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Market 2024</text>
+
+    <!-- Growth Stats -->
+    <rect x="270" y="520" width="120" height="60" rx="8" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+    <text x="330" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">22% CAGR</text>
+    <text x="330" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Market Growth</text>
+    <text x="330" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Through 2030</text>
+
+    <rect x="410" y="520" width="120" height="60" rx="8" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+    <text x="470" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">80% Cloud</text>
+    <text x="470" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Adoption by</text>
+    <text x="470" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Enterprises</text>
+
+    <!-- Target Customers -->
+    <text x="80" y="610" font-family="Arial, sans-serif" font-size="12" fill="#bf360c">• 100,000+ enterprises using AWS</text>
+    <text x="80" y="630" font-family="Arial, sans-serif" font-size="12" fill="#bf360c">• Average 2,000 AWS accounts per enterprise</text>
+    <text x="80" y="650" font-family="Arial, sans-serif" font-size="12" fill="#bf360c">• $45 current cost per account management</text>
+    <text x="80" y="670" font-family="Arial, sans-serif" font-size="12" fill="#bf360c">• 95% willing to pay for democratization solution</text>
+  </g>
+
+  <!-- Financial Projections Section -->
+  <g id="financialSection">
+    <rect x="580" y="460" width="470" height="220" rx="15" fill="url(#financialGradient)" stroke="#7b1fa2" stroke-width="3"/>
+    <text x="815" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#6a1b9a">
+      💰 Financial Projections
+    </text>
+
+    <!-- Revenue Chart Bars -->
+    <rect x="620" y="580" width="30" height="20" fill="#9c27b0"/>
+    <text x="635" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Y1</text>
+    <text x="635" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">$1.2M</text>
+
+    <rect x="670" y="550" width="30" height="50" fill="#9c27b0"/>
+    <text x="685" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Y2</text>
+    <text x="685" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">$4.8M</text>
+
+    <rect x="720" y="510" width="30" height="90" fill="#9c27b0"/>
+    <text x="735" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Y3</text>
+    <text x="735" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">$28.8M</text>
+
+    <rect x="770" y="450" width="30" height="150" fill="#9c27b0"/>
+    <text x="785" y="445" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Y4</text>
+    <text x="785" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">$72M</text>
+
+    <rect x="820" y="420" width="30" height="180" fill="#9c27b0"/>
+    <text x="835" y="415" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Y5</text>
+    <text x="835" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">$156M</text>
+
+    <!-- Key Metrics -->
+    <rect x="880" y="510" width="150" height="80" rx="8" fill="#e1bee7" stroke="#9c27b0" stroke-width="2"/>
+    <text x="955" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Key Metrics</text>
+    <text x="955" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">LTV/CAC: 20:1</text>
+    <text x="955" y="558" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">NRR: 140%</text>
+    <text x="955" y="571" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Gross Margin: 85%</text>
+    <text x="955" y="584" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Break-even: Month 18</text>
+
+    <!-- Pricing Model -->
+    <text x="610" y="640" font-family="Arial, sans-serif" font-size="11" fill="#4a148c">🎯 $12/account/month vs $45 traditional cost</text>
+    <text x="610" y="655" font-family="Arial, sans-serif" font-size="11" fill="#4a148c">🚀 1,200 customers by Month 18 (243% growth)</text>
+    <text x="610" y="670" font-family="Arial, sans-serif" font-size="11" fill="#4a148c">💎 Premium enterprise features drive expansion</text>
+  </g>
+
+  <!-- Competitive Advantage Section -->
+  <g id="competitiveSection">
+    <rect x="1080" y="460" width="470" height="220" rx="15" fill="url(#competitiveGradient)" stroke="#1976d2" stroke-width="3"/>
+    <text x="1315" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#0d47a1">
+      🏆 Competitive Advantages
+    </text>
+
+    <!-- Advantages -->
+    <rect x="1110" y="510" width="180" height="60" rx="8" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+    <text x="1200" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🥇 First Mover</text>
+    <text x="1200" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Only AI-powered security</text>
+    <text x="1200" y="558" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">democratization platform</text>
+
+    <rect x="1310" y="510" width="180" height="60" rx="8" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+    <text x="1400" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🤖 AI-First Design</text>
+    <text x="1400" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Built for non-technical</text>
+    <text x="1400" y="558" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">users from ground up</text>
+
+    <rect x="1110" y="580" width="180" height="60" rx="8" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+    <text x="1200" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🔒 Enterprise Ready</text>
+    <text x="1200" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Bank-level security</text>
+    <text x="1200" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">SOC 2 compliance</text>
+
+    <rect x="1310" y="580" width="180" height="60" rx="8" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+    <text x="1400" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📈 Proven Traction</text>
+    <text x="1400" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Production-ready</text>
+    <text x="1400" y="628" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">technical execution</text>
+
+    <!-- Moat Description -->
+    <text x="1110" y="660" font-family="Arial, sans-serif" font-size="11" fill="#01579b">🛡️ Defensible moat through AI training data and customer relationships</text>
+  </g>
+
+  <!-- Investment Ask Section -->
+  <g id="investmentSection">
+    <rect x="50" y="710" width="750" height="180" rx="15" fill="#e8f5e8" stroke="#4caf50" stroke-width="3"/>
+    <text x="425" y="740" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2e7d32">
+      💼 Investment Opportunity
+    </text>
+
+    <!-- Investment Details -->
+    <rect x="80" y="760" width="200" height="100" rx="10" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="180" y="785" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">$12M Series A</text>
+    <text x="180" y="805" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">18-month runway</text>
+    <text x="180" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Scale to 1,200 customers</text>
+    <text x="180" y="835" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">Achieve break-even</text>
+    <text x="180" y="850" text-anchor="middle" font-family="Arial, sans-serif" font-size="12">25% equity</text>
+
+    <!-- Use of Funds -->
+    <rect x="300" y="760" width="220" height="100" rx="10" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="410" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Use of Funds</text>
+    <text x="320" y="800" font-family="Arial, sans-serif" font-size="11">• 40% Engineering & AI specialists</text>
+    <text x="320" y="815" font-family="Arial, sans-serif" font-size="11">• 35% Sales & Marketing</text>
+    <text x="320" y="830" font-family="Arial, sans-serif" font-size="11">• 15% AWS integrations</text>
+    <text x="320" y="845" font-family="Arial, sans-serif" font-size="11">• 10% Operations & Legal</text>
+
+    <!-- Expected Returns -->
+    <rect x="540" y="760" width="220" height="100" rx="10" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+    <text x="650" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Expected Returns</text>
+    <text x="560" y="800" font-family="Arial, sans-serif" font-size="11">• 15x return potential by Year 5</text>
+    <text x="560" y="815" font-family="Arial, sans-serif" font-size="11">• Strategic acquisition target</text>
+    <text x="560" y="830" font-family="Arial, sans-serif" font-size="11">• Category-defining company</text>
+    <text x="560" y="845" font-family="Arial, sans-serif" font-size="11">• IPO path by Year 7</text>
+  </g>
+
+  <!-- Team & Execution Section -->
+  <g id="teamSection">
+    <rect x="850" y="710" width="700" height="180" rx="15" fill="#fff3e0" stroke="#ff9800" stroke-width="3"/>
+    <text x="1200" y="740" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#e65100">
+      👥 World-Class Execution
+    </text>
+
+    <!-- Team Strengths -->
+    <rect x="880" y="760" width="180" height="100" rx="10" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+    <text x="970" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Proven Team</text>
+    <text x="970" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Former AWS, Google</text>
+    <text x="970" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Security experts</text>
+    <text x="970" y="830" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">AI specialists</text>
+    <text x="970" y="845" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Enterprise sales</text>
+
+    <!-- Technical Excellence -->
+    <rect x="1080" y="760" width="180" height="100" rx="10" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+    <text x="1170" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Technical Excellence</text>
+    <text x="1170" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Production-ready</text>
+    <text x="1170" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Enterprise security</text>
+    <text x="1170" y="830" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Scalable architecture</text>
+    <text x="1170" y="845" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">AWS partnerships</text>
+
+    <!-- Go-to-Market -->
+    <rect x="1280" y="760" width="180" height="100" rx="10" fill="#ffe0b2" stroke="#ff9800" stroke-width="2"/>
+    <text x="1370" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Go-to-Market</text>
+    <text x="1370" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Product-led growth</text>
+    <text x="1370" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Enterprise pipeline</text>
+    <text x="1370" y="830" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">AWS Marketplace</text>
+    <text x="1370" y="845" text-anchor="middle" font-family="Arial, sans-serif" font-size="11">Partner channels</text>
+  </g>
+
+  <!-- Call to Action -->
+  <g id="ctaSection">
+    <rect x="200" y="920" width="1200" height="80" rx="15" fill="url(#headerGradient)" stroke="#1976d2" stroke-width="3"/>
+    <text x="800" y="950" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white">
+      🚀 Ready to Transform Cloud Security?
+    </text>
+    <text x="800" y="975" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#e3f2fd">
+      Join us in democratizing security for 100,000+ enterprises • Contact: investors@secureai.com
+    </text>
+  </g>
+
+  <!-- Key Stats Footer -->
+  <g id="statsFooter">
+    <rect x="0" y="1020" width="1600" height="80" fill="#263238"/>
+    
+    <text x="200" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">$68.6B Market</text>
+    <text x="200" y="1060" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Cloud Security TAM</text>
+    <text x="200" y="1075" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">22% CAGR Growth</text>
+
+    <text x="500" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">3.5M Jobs</text>
+    <text x="500" y="1060" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Cybersecurity Shortage</text>
+    <text x="500" y="1075" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Critical Skills Gap</text>
+
+    <text x="800" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">15x Returns</text>
+    <text x="800" y="1060" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Projected ROI</text>
+    <text x="800" y="1075" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">5-Year Horizon</text>
+
+    <text x="1100" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">First Mover</text>
+    <text x="1100" y="1060" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Category Defining</text>
+    <text x="1100" y="1075" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">AI-Powered Platform</text>
+
+    <text x="1400" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">90% Reduction</text>
+    <text x="1400" y="1060" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Security Questions</text>
+    <text x="1400" y="1075" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#b0bec5">Proven Impact</text>
+  </g>
+
+  <!-- Connecting Lines for Visual Flow -->
+  <line x1="425" y1="430" x2="1200" y2="150" stroke="#4caf50" stroke-width="3" opacity="0.3"/>
+  <line x1="1200" y1="430" x2="300" y2="460" stroke="#ff9800" stroke-width="3" opacity="0.3"/>
+  <line x1="300" y1="680" x2="815" y2="460" stroke="#9c27b0" stroke-width="3" opacity="0.3"/>
+  <line x1="815" y1="680" x2="1315" y2="460" stroke="#1976d2" stroke-width="3" opacity="0.3"/>
+</svg>
