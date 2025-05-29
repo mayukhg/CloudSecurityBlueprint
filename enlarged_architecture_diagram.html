@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Security Platform Architecture</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            overflow-x: auto;
+        }
+        
+        .diagram-container {
+            width: 100%;
+            min-width: 1400px;
+            min-height: 1000px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 0 auto;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+        }
+        
+        #diagram {
+            width: 100%;
+            height: 900px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .mermaid {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .controls button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .controls button:hover {
+            background: #2980b9;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        /* Enhanced Mermaid styling */
+        .mermaid svg {
+            max-width: none !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .mermaid .node rect {
+            stroke-width: 2px !important;
+            rx: 8px !important;
+            ry: 8px !important;
+        }
+        
+        .mermaid .edgePath path {
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid .cluster rect {
+            stroke-width: 3px !important;
+            rx: 12px !important;
+            ry: 12px !important;
+            fill-opacity: 0.1 !important;
+        }
+        
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            max-width: 300px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="zoom-controls">
+            <button onclick="zoomIn()">🔍 Zoom In</button>
+            <button onclick="zoomOut()">🔍 Zoom Out</button>
+            <button onclick="resetZoom()">↻ Reset</button>
+            <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+    </div>
+    
+    <div class="diagram-container" id="container">
+        <div class="title">🏗️ AWS Security Platform Architecture</div>
+        <div class="subtitle">Comprehensive Multi-Layer Security & AI-Powered Analytics Platform</div>
+        
+        <div id="diagram">
+            <div class="mermaid">
+graph TB
+    %% User Layer
+    User[👤 Non-Technical Users<br/>Account Owners, Developers]
+    DevTeam[👥 Development Team<br/>DevOps Engineers]
+    
+    %% CI/CD Pipeline Layer
+    subgraph CICD [🚀 CI/CD Pipeline - AWS CodePipeline]
+        GitHub[📱 GitHub Repository<br/>Source Code & Webhook]
+        CodeBuild[🔨 AWS CodeBuild<br/>Build, Test & Docker]
+        ECR[📦 Amazon ECR<br/>Container Registry]
+        Pipeline[🔄 CodePipeline<br/>Automated Workflow]
+        Approval[✋ Manual Approval<br/>Production Gate]
+    end
+    
+    %% Infrastructure Layer
+    subgraph INFRA [☁️ AWS Infrastructure - CloudFormation]
+        VPC[🌐 VPC<br/>Network Security]
+        ALB[⚖️ Application Load Balancer<br/>High Availability & SSL/TLS]
+        ECS[🐳 ECS Fargate<br/>Container Orchestration]
+        RDS[🗄️ PostgreSQL RDS<br/>Encrypted Database]
+        Secrets[🔐 Secrets Manager<br/>Secure Configuration]
+        CloudWatch[📊 CloudWatch<br/>Security Monitoring & Logs]
+        WAF[🛡️ AWS WAF<br/>DDoS Protection]
+    end
+    
+    %% Security Layer
+    subgraph SECURITY [🔒 Security Controls]
+        RateLimit[⏱️ Rate Limiting<br/>DDoS Protection]
+        InputVal[✅ Input Validation<br/>XSS/SQL Prevention]
+        AuditLog[📝 Audit Logging<br/>Compliance Trail]
+        AuthZ[🔑 Authentication<br/>Authorization]
+        Helmet[🛡️ Security Headers<br/>CSP & CORS]
+    end
+    
+    %% Frontend Layer
+    subgraph FRONTEND [🎨 Frontend - React + TypeScript]
+        Dashboard[📊 Dashboard<br/>Multi-Account Overview]
+        PolicyCopilot[🔍 Policy Copilot<br/>AI Policy Explanation]
+        Remediation[🛠️ Remediation Assistant<br/>Step-by-Step Fixes]
+        Reports[📈 Security Reports<br/>AI-Generated Insights]
+        Chat[💬 Security Concierge<br/>AI Chat Assistant]
+        Playbooks[📋 Playbook Generator<br/>Automated Procedures]
+    end
+    
+    %% API Layer
+    subgraph API [🔌 Backend API - Express + TypeScript]
+        DashboardAPI["/api/dashboard/overview<br/>/api/accounts<br/>/api/security-findings"]
+        AIAPI["/api/policy-copilot/explain<br/>/api/remediation/steps<br/>/api/reports/generate"]
+        ChatAPI["/api/chat/messages<br/>/api/chat/message"]
+        PlaybookAPI["/api/playbooks<br/>/api/playbooks/generate"]
+        HealthAPI["/health<br/>Health Check Endpoint"]
+    end
+    
+    %% Business Logic Layer
+    subgraph DATA [💾 Data Access Layer]
+        Storage[🗄️ DatabaseStorage<br/>Repository Pattern<br/>Type-Safe Operations]
+    end
+    
+    %% External Services
+    subgraph AI [🤖 AI Services]
+        OpenAI[🧠 OpenAI GPT-4o<br/>Policy Explanations<br/>Remediation Guidance<br/>Chat Responses<br/>Report Generation]
+    end
+    
+    %% Database Layer
+    subgraph DB [🗃️ PostgreSQL Database]
+        Users[👥 users<br/>Authentication]
+        Accounts[🏢 accounts<br/>AWS Account Metrics]
+        Findings[🚨 security_findings<br/>Vulnerabilities]
+        Messages[💬 chat_messages<br/>Conversation History]
+        PlaybookDB[📚 playbooks<br/>Security Procedures]
+    end
+    
+    %% AWS Integration
+    subgraph AWS [⚡ AWS Services - Security Data Sources]
+        SecurityHub[🛡️ Security Hub<br/>Findings Import]
+        GuardDuty[🔍 GuardDuty<br/>Threat Detection]
+        IAM[🔐 IAM<br/>Policy Analysis]
+        Config[⚙️ Config<br/>Compliance Rules]
+    end
+    
+    %% CI/CD Flow
+    DevTeam ==> GitHub
+    GitHub ==> Pipeline
+    Pipeline ==> CodeBuild
+    CodeBuild ==> ECR
+    ECR ==> ECS
+    
+    %% Infrastructure Flow
+    ALB ==> ECS
+    ECS ==> RDS
+    ECS ==> Secrets
+    CloudWatch ==> ECS
+    VPC ==> ALB
+    VPC ==> ECS
+    VPC ==> RDS
+    
+    %% Application Flow with Security
+    User ==> WAF
+    WAF ==> ALB
+    ALB ==> RateLimit
+    RateLimit ==> Helmet
+    Helmet ==> InputVal
+    InputVal ==> AuthZ
+    AuthZ ==> Dashboard
+    AuthZ ==> PolicyCopilot
+    AuthZ ==> Remediation
+    AuthZ ==> Reports
+    AuthZ ==> Chat
+    AuthZ ==> Playbooks
+    
+    Dashboard ==> DashboardAPI
+    PolicyCopilot ==> AIAPI
+    Remediation ==> AIAPI
+    Reports ==> AIAPI
+    Chat ==> ChatAPI
+    Playbooks ==> PlaybookAPI
+    
+    DashboardAPI ==> AuditLog
+    AIAPI ==> AuditLog
+    ChatAPI ==> AuditLog
+    PlaybookAPI ==> AuditLog
+    
+    DashboardAPI ==> Storage
+    AIAPI ==> Storage
+    AIAPI ==> OpenAI
+    ChatAPI ==> Storage
+    ChatAPI ==> OpenAI
+    PlaybookAPI ==> Storage
+    PlaybookAPI ==> OpenAI
+    HealthAPI ==> Storage
+    
+    Storage ==> Users
+    Storage ==> Accounts
+    Storage ==> Findings
+    Storage ==> Messages
+    Storage ==> PlaybookDB
+    
+    %% AWS Service Integrations
+    SecurityHub ==> Findings
+    GuardDuty ==> Findings
+    IAM ==> AIAPI
+    Config ==> Accounts
+    
+    %% Production Gates
+    Pipeline ==> Approval
+    Approval ==> ECS
+    
+    %% Monitoring
+    CloudWatch ==> Pipeline
+    CloudWatch ==> ALB
+    CloudWatch ==> RDS
+    
+    %% Enhanced Styling
+    classDef userClass fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
+    classDef cicdClass fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
+    classDef infraClass fill:#f1f8e9,stroke:#33691e,stroke-width:3px,color:#000
+    classDef securityClass fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
+    classDef frontendClass fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
+    classDef apiClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px,color:#000
+    classDef storageClass fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
+    classDef aiClass fill:#fce4ec,stroke:#880e4f,stroke-width:3px,color:#000
+    classDef dbClass fill:#e3f2fd,stroke:#0d47a1,stroke-width:3px,color:#000
+    classDef awsClass fill:#f1f8e9,stroke:#33691e,stroke-width:3px,color:#000
+    
+    class User,DevTeam userClass
+    class GitHub,CodeBuild,ECR,Pipeline,Approval cicdClass
+    class VPC,ALB,ECS,RDS,Secrets,CloudWatch,WAF infraClass
+    class RateLimit,InputVal,AuditLog,AuthZ,Helmet securityClass
+    class Dashboard,PolicyCopilot,Remediation,Reports,Chat,Playbooks frontendClass
+    class DashboardAPI,AIAPI,ChatAPI,PlaybookAPI,HealthAPI apiClass
+    class Storage storageClass
+    class OpenAI aiClass
+    class Users,Accounts,Findings,Messages,PlaybookDB dbClass
+    class SecurityHub,GuardDuty,IAM,Config awsClass
+            </div>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <h4>🎨 Architecture Layers</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e1f5fe;"></div>
+            <span>Users & Teams</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fff3e0;"></div>
+            <span>CI/CD Pipeline</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f1f8e9;"></div>
+            <span>AWS Infrastructure</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffebee;"></div>
+            <span>Security Controls</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f3e5f5;"></div>
+            <span>Frontend Components</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e8f5e8;"></div>
+            <span>API Endpoints</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fce4ec;"></div>
+            <span>AI Services</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e3f2fd;"></div>
+            <span>Database Tables</span>
+        </div>
+    </div>
+
+    <script>
+        let currentZoom = 1;
+        const zoomStep = 0.2;
+        const maxZoom = 3;
+        const minZoom = 0.5;
+        
+        // Initialize Mermaid with enhanced configuration
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#000000',
+                lineColor: '#444444',
+                secondaryColor: '#ffffff',
+                tertiaryColor: '#ffffff',
+                background: '#ffffff',
+                mainBkg: '#ffffff',
+                secondBkg: '#ffffff',
+                fontFamily: 'Segoe UI, sans-serif',
+                fontSize: '14px'
+            },
+            flowchart: {
+                htmlLabels: true,
+                curve: 'basis',
+                padding: 20,
+                nodeSpacing: 100,
+                rankSpacing: 100,
+                useMaxWidth: true
+            },
+            securityLevel: 'loose'
+        });
+        
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += zoomStep;
+                applyZoom();
+            }
+        }
+        
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= zoomStep;
+                applyZoom();
+            }
+        }
+        
+        function resetZoom() {
+            currentZoom = 1;
+            applyZoom();
+        }
+        
+        function applyZoom() {
+            const diagram = document.getElementById('diagram');
+            diagram.style.transform = `scale(${currentZoom})`;
+            diagram.style.transformOrigin = 'center center';
+        }
+        
+        function toggleFullscreen() {
+            const container = document.getElementById('container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Handle mouse wheel zoom
+        document.getElementById('diagram').addEventListener('wheel', function(e) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+        
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                    case '0':
+                        e.preventDefault();
+                        resetZoom();
+                        break;
+                }
+            }
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
