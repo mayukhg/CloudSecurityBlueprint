@@ -32,7 +32,7 @@ graph TB
         InputVal[✅ Input Validation<br/>XSS/SQL Prevention]
         AuditLog[📝 Audit Logging<br/>Compliance Trail]
         AuthZ[🔑 Authentication<br/>Authorization]
-        Helmet[🛡️ Security Headers<br/>CSP & CORS]
+        Helmet[🛡️ Security Headers<br/>CSP &amp; CORS]
     end
     
     %% Frontend Layer
