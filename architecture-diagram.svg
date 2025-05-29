@@ -34,6 +34,11 @@
       <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Arrow marker definition -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
   </defs>
 
   <!-- Background -->
@@ -261,12 +266,7 @@
   <!-- CI/CD to Infrastructure -->
   <line x1="950" y1="530" x2="930" y2="590" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead)"/>
 
-  <!-- Arrow marker definition -->
-  <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
-    </marker>
-  </defs>
+  <!-- Arrow marker moved to main defs section -->
 
   <!-- Key Features Box -->
   <g id="keyFeatures">
