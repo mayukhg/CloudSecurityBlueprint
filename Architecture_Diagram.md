@@ -7,7 +7,7 @@ graph TB
     DevTeam[👥 Development Team<br/>DevOps Engineers]
     
     %% CI/CD Pipeline Layer
-    subgraph "CI/CD Pipeline (AWS CodePipeline)"
+    subgraph CICD [CI/CD Pipeline - AWS CodePipeline]
         GitHub[📱 GitHub Repository<br/>Source Code & Webhook]
         CodeBuild[🔨 AWS CodeBuild<br/>Build, Test & Docker]
         ECR[📦 Amazon ECR<br/>Container Registry]
@@ -16,7 +16,7 @@ graph TB
     end
     
     %% Infrastructure Layer
-    subgraph "AWS Infrastructure (CloudFormation)"
+    subgraph INFRA [AWS Infrastructure - CloudFormation]
         VPC[🌐 VPC<br/>Network Security]
         ALB[⚖️ Application Load Balancer<br/>High Availability & SSL/TLS]
         ECS[🐳 ECS Fargate<br/>Container Orchestration]
@@ -27,7 +27,7 @@ graph TB
     end
     
     %% Security Layer
-    subgraph "Security Controls"
+    subgraph SECURITY [Security Controls]
         RateLimit[⏱️ Rate Limiting<br/>DDoS Protection]
         InputVal[✅ Input Validation<br/>XSS/SQL Prevention]
         AuditLog[📝 Audit Logging<br/>Compliance Trail]
@@ -36,7 +36,7 @@ graph TB
     end
     
     %% Frontend Layer
-    subgraph "Frontend (React + TypeScript)"
+    subgraph FRONTEND [Frontend - React + TypeScript]
         Dashboard[📊 Dashboard<br/>Multi-Account Overview]
         PolicyCopilot[🔍 Policy Copilot<br/>AI Policy Explanation]
         Remediation[🛠️ Remediation Assistant<br/>Step-by-Step Fixes]
@@ -46,7 +46,7 @@ graph TB
     end
     
     %% API Layer
-    subgraph "Backend API (Express + TypeScript)"
+    subgraph API [Backend API - Express + TypeScript]
         DashboardAPI[/api/dashboard/overview<br/>/api/accounts<br/>/api/security-findings]
         AIAPI[/api/policy-copilot/explain<br/>/api/remediation/steps<br/>/api/reports/generate]
         ChatAPI[/api/chat/messages<br/>/api/chat/message]
@@ -55,17 +55,17 @@ graph TB
     end
     
     %% Business Logic Layer
-    subgraph "Data Access Layer"
+    subgraph DATA [Data Access Layer]
         Storage[🗄️ DatabaseStorage<br/>Repository Pattern<br/>Type-Safe Operations]
     end
     
     %% External Services
-    subgraph "AI Services"
+    subgraph AI [AI Services]
         OpenAI[🤖 OpenAI GPT-4o<br/>Policy Explanations<br/>Remediation Guidance<br/>Chat Responses<br/>Report Generation]
     end
     
     %% Database Layer
-    subgraph "PostgreSQL Database"
+    subgraph DB [PostgreSQL Database]
         Users[(👥 users<br/>Authentication)]
         Accounts[(🏢 accounts<br/>AWS Account Metrics)]
         Findings[(🚨 security_findings<br/>Vulnerabilities)]
@@ -74,7 +74,7 @@ graph TB
     end
     
     %% AWS Integration
-    subgraph "AWS Services (Security Data Sources)"
+    subgraph AWS [AWS Services - Security Data Sources]
         SecurityHub[🛡️ Security Hub<br/>Findings Import]
         GuardDuty[🔍 GuardDuty<br/>Threat Detection]
         IAM[🔐 IAM<br/>Policy Analysis]
@@ -157,6 +157,7 @@ graph TB
     classDef userClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef cicdClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef infraClass fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+    classDef securityClass fill:#ffebee,stroke:#c62828,stroke-width:2px
     classDef frontendClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     classDef apiClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
     classDef storageClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
@@ -166,7 +167,8 @@ graph TB
     
     class User,DevTeam userClass
     class GitHub,CodeBuild,ECR,Pipeline,Approval cicdClass
-    class VPC,ALB,ECS,RDS,Secrets,CloudWatch infraClass
+    class VPC,ALB,ECS,RDS,Secrets,CloudWatch,WAF infraClass
+    class RateLimit,InputVal,AuditLog,AuthZ,Helmet securityClass
     class Dashboard,PolicyCopilot,Remediation,Reports,Chat,Playbooks frontendClass
     class DashboardAPI,AIAPI,ChatAPI,PlaybookAPI,HealthAPI apiClass
     class Storage storageClass
@@ -195,6 +197,14 @@ graph TB
 - **PostgreSQL RDS**: Managed database with automated backups and encryption
 - **Secrets Manager**: Secure storage for API keys and database credentials
 - **CloudWatch**: Comprehensive monitoring, logging, and alerting
+- **AWS WAF**: Web Application Firewall for DDoS protection
+
+### 🛡️ Security Controls Layer
+- **Rate Limiting**: Multi-tiered rate controls (100/15min general, 10/min AI, 20/min chat)
+- **Input Validation**: XSS and SQL injection prevention with Zod schemas
+- **Audit Logging**: Comprehensive compliance trail for all user actions
+- **Authentication**: Secure user authentication and session management
+- **Security Headers**: CSP, CORS, and HSTS protection with Helmet.js
 
 ### 🎨 Frontend Layer (React + TypeScript)
 - **Dashboard**: Multi-account security overview with metrics and quick actions
@@ -239,22 +249,26 @@ graph TB
 ## Data Flow
 
 1. **User Interaction**: Non-technical users interact with intuitive frontend interfaces
-2. **API Processing**: Express.js APIs handle requests with proper validation
-3. **AI Enhancement**: OpenAI GPT-4o provides intelligent insights and explanations
-4. **Data Persistence**: PostgreSQL stores all platform data persistently
-5. **Real-time Updates**: React Query ensures UI stays synchronized with backend
+2. **Security Processing**: All requests pass through comprehensive security controls
+3. **API Processing**: Express.js APIs handle requests with proper validation
+4. **AI Enhancement**: OpenAI GPT-4o provides intelligent insights and explanations
+5. **Data Persistence**: PostgreSQL stores all platform data with encryption
+6. **Real-time Updates**: React Query ensures UI stays synchronized with backend
 
 ## Security Architecture
 
-- **Environment Variables**: All secrets stored securely
+- **Multi-Layer Defense**: WAF → Rate Limiting → Input Validation → Authentication
+- **Environment Variables**: All secrets stored securely with validation
 - **Server-Side AI Calls**: API keys never exposed to client
-- **Input Validation**: Zod schemas validate all requests
+- **Input Validation**: Comprehensive sanitization and validation
 - **Type Safety**: TypeScript prevents runtime errors
 - **SQL Injection Prevention**: Drizzle ORM parameterized queries
+- **Audit Compliance**: SOC 2, GDPR, and security framework logging
 
 ## Scalability Design
 
-- **Serverless Ready**: Compatible with modern deployment platforms
+- **Serverless Architecture**: ECS Fargate with auto-scaling 1-20 instances
 - **Connection Pooling**: Efficient database resource utilization
 - **Caching Strategy**: React Query reduces unnecessary API calls
 - **Modular Architecture**: Easy feature addition and maintenance
+- **Multi-Account Support**: Designed for 2,000+ AWS accounts with linear scaling
