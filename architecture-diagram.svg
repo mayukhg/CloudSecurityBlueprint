@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for different layers -->
+    <linearGradient id="userGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e1f5fe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b3e5fc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cicdGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fff3e0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffe0b2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="infraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f1f8e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dcedc8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="securityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffebee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffcdd2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="frontendGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3e5f5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e1bee7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="apiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f5e8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c8e6c9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fce4ec;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8bbd9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dbGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1976d2">
+    SecureAI Platform - Architecture Overview
+  </text>
+
+  <!-- User Layer -->
+  <g id="userLayer">
+    <rect x="50" y="70" width="200" height="80" rx="10" fill="url(#userGradient)" stroke="#01579b" stroke-width="2"/>
+    <text x="150" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">👤 Non-Technical Users</text>
+    <text x="150" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Account Owners</text>
+    <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Developers</text>
+    <text x="150" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Business Stakeholders</text>
+
+    <rect x="300" y="70" width="200" height="80" rx="10" fill="url(#userGradient)" stroke="#01579b" stroke-width="2"/>
+    <text x="400" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">👥 Development Team</text>
+    <text x="400" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">DevOps Engineers</text>
+    <text x="400" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">CI/CD Management</text>
+  </g>
+
+  <!-- Security Controls Layer -->
+  <g id="securityLayer">
+    <rect x="50" y="180" width="450" height="120" rx="10" fill="url(#securityGradient)" stroke="#c62828" stroke-width="2"/>
+    <text x="275" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🛡️ Security Controls Layer</text>
+    
+    <rect x="70" y="210" width="80" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
+    <text x="110" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">⏱️ Rate Limiting</text>
+    <text x="110" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">DDoS Protection</text>
+    <text x="110" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Tiered Controls</text>
+
+    <rect x="160" y="210" width="80" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
+    <text x="200" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">✅ Input Validation</text>
+    <text x="200" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">XSS Prevention</text>
+    <text x="200" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">SQL Injection</text>
+
+    <rect x="250" y="210" width="80" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
+    <text x="290" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📝 Audit Logging</text>
+    <text x="290" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Compliance Trail</text>
+    <text x="290" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">SOC 2 Ready</text>
+
+    <rect x="340" y="210" width="80" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
+    <text x="380" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🔑 Authentication</text>
+    <text x="380" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Session Mgmt</text>
+    <text x="380" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Authorization</text>
+
+    <rect x="430" y="210" width="60" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
+    <text x="460" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🛡️ Headers</text>
+    <text x="460" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">CSP & CORS</text>
+    <text x="460" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">HSTS</text>
+  </g>
+
+  <!-- Frontend Layer -->
+  <g id="frontendLayer">
+    <rect x="50" y="330" width="450" height="140" rx="10" fill="url(#frontendGradient)" stroke="#4a148c" stroke-width="2"/>
+    <text x="275" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🎨 Frontend - React + TypeScript</text>
+    
+    <rect x="70" y="360" width="120" height="50" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="130" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📊 Dashboard</text>
+    <text x="130" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Multi-Account Overview</text>
+    <text x="130" y="402" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Security Metrics</text>
+
+    <rect x="200" y="360" width="120" height="50" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="260" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🔍 Policy Copilot</text>
+    <text x="260" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">AI Policy Explanation</text>
+    <text x="260" y="402" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Plain English</text>
+
+    <rect x="330" y="360" width="120" height="50" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="390" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🛠️ Remediation</text>
+    <text x="390" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Step-by-Step Fixes</text>
+    <text x="390" y="402" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">AI Assistant</text>
+
+    <rect x="70" y="420" width="120" height="40" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="130" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📈 Reports</text>
+    <text x="130" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">AI-Generated Insights</text>
+
+    <rect x="200" y="420" width="120" height="40" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="260" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">💬 Chat Concierge</text>
+    <text x="260" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">AI Security Expert</text>
+
+    <rect x="330" y="420" width="120" height="40" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="1"/>
+    <text x="390" y="438" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📋 Playbooks</text>
+    <text x="390" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">Auto Procedures</text>
+  </g>
+
+  <!-- API Layer -->
+  <g id="apiLayer">
+    <rect x="50" y="490" width="450" height="80" rx="10" fill="url(#apiGradient)" stroke="#1b5e20" stroke-width="2"/>
+    <text x="275" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🔗 Backend API - Express + TypeScript</text>
+    
+    <rect x="70" y="520" width="100" height="40" rx="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+    <text x="120" y="538" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Dashboard APIs</text>
+    <text x="120" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">/api/dashboard</text>
+
+    <rect x="180" y="520" width="100" height="40" rx="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+    <text x="230" y="538" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">AI APIs</text>
+    <text x="230" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">/api/policy-copilot</text>
+
+    <rect x="290" y="520" width="100" height="40" rx="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+    <text x="340" y="538" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Chat APIs</text>
+    <text x="340" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">/api/chat</text>
+
+    <rect x="400" y="520" width="80" height="40" rx="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+    <text x="440" y="538" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Health API</text>
+    <text x="440" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">/health</text>
+  </g>
+
+  <!-- AI Services -->
+  <g id="aiServices">
+    <rect x="550" y="330" width="180" height="120" rx="10" fill="url(#aiGradient)" stroke="#880e4f" stroke-width="2"/>
+    <text x="640" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🤖 AI Services</text>
+    <text x="640" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">OpenAI GPT-4o</text>
+    <text x="640" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Policy Explanations</text>
+    <text x="640" y="398" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Remediation Guidance</text>
+    <text x="640" y="411" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Chat Responses</text>
+    <text x="640" y="424" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Report Generation</text>
+    <text x="640" y="437" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Security Insights</text>
+  </g>
+
+  <!-- Database Layer -->
+  <g id="databaseLayer">
+    <rect x="550" y="490" width="180" height="120" rx="10" fill="url(#dbGradient)" stroke="#0d47a1" stroke-width="2"/>
+    <text x="640" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🗃️ PostgreSQL Database</text>
+    
+    <rect x="570" y="520" width="60" height="35" rx="5" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+    <text x="600" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">👥 users</text>
+    <text x="600" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Authentication</text>
+
+    <rect x="640" y="520" width="80" height="35" rx="5" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+    <text x="680" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">🏢 aws_accounts</text>
+    <text x="680" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Account Metrics</text>
+
+    <rect x="570" y="565" width="80" height="35" rx="5" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+    <text x="610" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">🚨 findings</text>
+    <text x="610" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Vulnerabilities</text>
+
+    <rect x="660" y="565" width="60" height="35" rx="5" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+    <text x="690" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">💬 chat</text>
+    <text x="690" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Messages</text>
+  </g>
+
+  <!-- AWS Services -->
+  <g id="awsServices">
+    <rect x="750" y="330" width="180" height="200" rx="10" fill="url(#infraGradient)" stroke="#33691e" stroke-width="2"/>
+    <text x="840" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">☁️ AWS Services</text>
+    
+    <rect x="770" y="360" width="140" height="30" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="840" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🛡️ Security Hub</text>
+
+    <rect x="770" y="400" width="140" height="30" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="840" y="418" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🔍 GuardDuty</text>
+
+    <rect x="770" y="440" width="140" height="30" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="840" y="458" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🔐 IAM</text>
+
+    <rect x="770" y="480" width="140" height="30" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="840" y="498" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">⚙️ Config</text>
+  </g>
+
+  <!-- Infrastructure Layer -->
+  <g id="infraLayer">
+    <rect x="750" y="550" width="180" height="120" rx="10" fill="url(#infraGradient)" stroke="#33691e" stroke-width="2"/>
+    <text x="840" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🏗️ AWS Infrastructure</text>
+    
+    <rect x="770" y="580" width="60" height="35" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="800" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">🐳 ECS</text>
+    <text x="800" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Fargate</text>
+
+    <rect x="840" y="580" width="60" height="35" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="870" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">🗄️ RDS</text>
+    <text x="870" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">PostgreSQL</text>
+
+    <rect x="770" y="625" width="60" height="35" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="800" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">⚖️ ALB</text>
+    <text x="800" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Load Balancer</text>
+
+    <rect x="840" y="625" width="60" height="35" rx="5" fill="#dcedc8" stroke="#689f38" stroke-width="1"/>
+    <text x="870" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">📊 CloudWatch</text>
+    <text x="870" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="7">Monitoring</text>
+  </g>
+
+  <!-- CI/CD Pipeline -->
+  <g id="cicdPipeline">
+    <rect x="950" y="330" width="200" height="220" rx="10" fill="url(#cicdGradient)" stroke="#e65100" stroke-width="2"/>
+    <text x="1050" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🔄 CI/CD Pipeline</text>
+    
+    <rect x="970" y="360" width="160" height="30" rx="5" fill="#ffe0b2" stroke="#f57c00" stroke-width="1"/>
+    <text x="1050" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📱 GitHub Repository</text>
+
+    <rect x="970" y="400" width="160" height="30" rx="5" fill="#ffe0b2" stroke="#f57c00" stroke-width="1"/>
+    <text x="1050" y="418" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🔨 AWS CodeBuild</text>
+
+    <rect x="970" y="440" width="160" height="30" rx="5" fill="#ffe0b2" stroke="#f57c00" stroke-width="1"/>
+    <text x="1050" y="458" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">📦 Amazon ECR</text>
+
+    <rect x="970" y="480" width="160" height="30" rx="5" fill="#ffe0b2" stroke="#f57c00" stroke-width="1"/>
+    <text x="1050" y="498" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">✋ Manual Approval</text>
+
+    <rect x="970" y="520" width="160" height="20" rx="5" fill="#ffe0b2" stroke="#f57c00" stroke-width="1"/>
+    <text x="1050" y="533" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🚀 Deploy to ECS</text>
+  </g>
+
+  <!-- Data Flow Arrows -->
+  <!-- User to Security -->
+  <line x1="275" y1="150" x2="275" y2="180" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Security to Frontend -->
+  <line x1="275" y1="300" x2="275" y2="330" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Frontend to API -->
+  <line x1="275" y1="470" x2="275" y2="490" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- API to AI -->
+  <line x1="500" y1="530" x2="550" y2="390" stroke="#ff5722" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- API to Database -->
+  <line x1="500" y1="540" x2="550" y2="550" stroke="#4caf50" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- AWS Services to Database -->
+  <line x1="750" y1="500" x2="730" y2="520" stroke="#9c27b0" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- CI/CD to Infrastructure -->
+  <line x1="950" y1="530" x2="930" y2="590" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Key Features Box -->
+  <g id="keyFeatures">
+    <rect x="50" y="700" width="1100" height="160" rx="10" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+    <text x="600" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#495057">🎯 Key Platform Features</text>
+    
+    <rect x="80" y="730" width="200" height="110" rx="5" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+    <text x="180" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">🔍 AI Policy Copilot</text>
+    <text x="180" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Plain English explanations</text>
+    <text x="180" y="777" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Complex policy breakdown</text>
+    <text x="180" y="789" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Business impact analysis</text>
+    <text x="180" y="801" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Compliance recommendations</text>
+    <text x="180" y="825" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold">90% fewer security questions</text>
+
+    <rect x="300" y="730" width="200" height="110" rx="5" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+    <text x="400" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">🛠️ Remediation Assistant</text>
+    <text x="400" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Step-by-step guidance</text>
+    <text x="400" y="777" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• AWS CLI commands</text>
+    <text x="400" y="789" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Console instructions</text>
+    <text x="400" y="801" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Best practices included</text>
+    <text x="400" y="825" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold">60% faster issue resolution</text>
+
+    <rect x="520" y="730" width="200" height="110" rx="5" fill="#e8f5e8" stroke="#388e3c" stroke-width="1"/>
+    <text x="620" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">💬 Security Concierge</text>
+    <text x="620" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• 24/7 AI assistance</text>
+    <text x="620" y="777" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Context-aware responses</text>
+    <text x="620" y="789" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Real-time support</text>
+    <text x="620" y="801" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Learning conversations</text>
+    <text x="620" y="825" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold">Instant security expertise</text>
+
+    <rect x="740" y="730" width="200" height="110" rx="5" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+    <text x="840" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">📊 Multi-Account Dashboard</text>
+    <text x="840" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• 2,000+ AWS accounts</text>
+    <text x="840" y="777" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Real-time metrics</text>
+    <text x="840" y="789" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Compliance tracking</text>
+    <text x="840" y="801" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Risk visualization</text>
+    <text x="840" y="825" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold">Centralized security view</text>
+
+    <rect x="960" y="730" width="170" height="110" rx="5" fill="#ffebee" stroke="#c62828" stroke-width="1"/>
+    <text x="1045" y="750" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">🛡️ Enterprise Security</text>
+    <text x="1045" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Rate limiting controls</text>
+    <text x="1045" y="777" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Comprehensive auditing</text>
+    <text x="1045" y="789" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• SOC 2 compliance</text>
+    <text x="1045" y="801" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">• Multi-layer defense</text>
+    <text x="1045" y="825" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold">Bank-level protection</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="600" y="885" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">
+    SecureAI Platform - Democratizing Cloud Security Through AI-Powered Guidance
+  </text>
+</svg>
