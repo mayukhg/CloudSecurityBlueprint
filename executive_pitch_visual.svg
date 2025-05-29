@@ -260,10 +260,10 @@
     <!-- Use of Funds -->
     <rect x="300" y="760" width="220" height="100" rx="10" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
     <text x="410" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Use of Funds</text>
-    <text x="320" y="800" font-family="Arial, sans-serif" font-size="11">• 40% Engineering and AI specialists</text>
-    <text x="320" y="815" font-family="Arial, sans-serif" font-size="11">• 35% Sales and Marketing</text>
+    <text x="320" y="800" font-family="Arial, sans-serif" font-size="11">• 40% Engineering &amp; AI specialists</text>
+    <text x="320" y="815" font-family="Arial, sans-serif" font-size="11">• 35% Sales &amp; Marketing</text>
     <text x="320" y="830" font-family="Arial, sans-serif" font-size="11">• 15% AWS integrations</text>
-    <text x="320" y="845" font-family="Arial, sans-serif" font-size="11">• 10% Operations & Legal</text>
+    <text x="320" y="845" font-family="Arial, sans-serif" font-size="11">• 10% Operations &amp; Legal</text>
 
     <!-- Expected Returns -->
     <rect x="540" y="760" width="220" height="100" rx="10" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
