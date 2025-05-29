@@ -10,7 +10,8 @@
             margin: 0;
             padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
+            background: #0a0a0a;
+            color: #ffffff;
             overflow-x: auto;
         }
         
@@ -18,9 +19,10 @@
             width: 100%;
             min-width: 1400px;
             min-height: 1000px;
-            background: white;
+            background: #1a1a1a;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border: 1px solid #333;
             padding: 30px;
             margin: 0 auto;
         }
@@ -29,15 +31,15 @@
             text-align: center;
             font-size: 2.5em;
             font-weight: bold;
-            color: #2c3e50;
+            color: #00d4ff;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
         
         .subtitle {
             text-align: center;
             font-size: 1.2em;
-            color: #7f8c8d;
+            color: #888;
             margin-bottom: 40px;
         }
         
@@ -47,6 +49,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background: #111;
+            border-radius: 8px;
+            border: 1px solid #333;
         }
         
         .mermaid {
@@ -58,26 +63,29 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
+            background: #2a2a2a;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            border: 1px solid #444;
             z-index: 1000;
         }
         
         .controls button {
             margin: 5px;
             padding: 8px 16px;
-            border: none;
+            border: 1px solid #555;
             background: #3498db;
             color: white;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            transition: all 0.3s ease;
         }
         
         .controls button:hover {
             background: #2980b9;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
         }
         
         .zoom-controls {
@@ -86,11 +94,12 @@
             align-items: center;
         }
         
-        /* Enhanced Mermaid styling */
+        /* Enhanced Mermaid styling for dark theme */
         .mermaid svg {
             max-width: none !important;
             width: 100% !important;
             height: 100% !important;
+            background: #111 !important;
         }
         
         .mermaid .node rect {
@@ -101,6 +110,7 @@
         
         .mermaid .edgePath path {
             stroke-width: 2px !important;
+            stroke: #666 !important;
         }
         
         .mermaid .cluster rect {
@@ -110,22 +120,34 @@
             fill-opacity: 0.1 !important;
         }
         
+        .mermaid .edgeLabel {
+            background-color: #111 !important;
+            color: #fff !important;
+        }
+        
         .legend {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background: white;
+            background: #2a2a2a;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            border: 1px solid #444;
             max-width: 300px;
             font-size: 12px;
+            color: #fff;
+        }
+        
+        .legend h4 {
+            color: #00d4ff;
+            margin-top: 0;
         }
         
         .legend-item {
             display: flex;
             align-items: center;
-            margin: 5px 0;
+            margin: 8px 0;
         }
         
         .legend-color {
@@ -133,7 +155,7 @@
             height: 20px;
             border-radius: 4px;
             margin-right: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #666;
         }
     </style>
 </head>
@@ -305,17 +327,17 @@ graph TB
     CloudWatch ==> ALB
     CloudWatch ==> RDS
     
-    %% Enhanced Styling
-    classDef userClass fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
-    classDef cicdClass fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
-    classDef infraClass fill:#f1f8e9,stroke:#33691e,stroke-width:3px,color:#000
-    classDef securityClass fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000
-    classDef frontendClass fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
-    classDef apiClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px,color:#000
-    classDef storageClass fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
-    classDef aiClass fill:#fce4ec,stroke:#880e4f,stroke-width:3px,color:#000
-    classDef dbClass fill:#e3f2fd,stroke:#0d47a1,stroke-width:3px,color:#000
-    classDef awsClass fill:#f1f8e9,stroke:#33691e,stroke-width:3px,color:#000
+    %% Enhanced Styling for Dark Theme
+    classDef userClass fill:#1e3a8a,stroke:#3b82f6,stroke-width:3px,color:#ffffff
+    classDef cicdClass fill:#92400e,stroke:#f59e0b,stroke-width:3px,color:#ffffff
+    classDef infraClass fill:#166534,stroke:#22c55e,stroke-width:3px,color:#ffffff
+    classDef securityClass fill:#991b1b,stroke:#ef4444,stroke-width:3px,color:#ffffff
+    classDef frontendClass fill:#581c87,stroke:#a855f7,stroke-width:3px,color:#ffffff
+    classDef apiClass fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#ffffff
+    classDef storageClass fill:#a16207,stroke:#eab308,stroke-width:3px,color:#ffffff
+    classDef aiClass fill:#be185d,stroke:#ec4899,stroke-width:3px,color:#ffffff
+    classDef dbClass fill:#1e40af,stroke:#3b82f6,stroke-width:3px,color:#ffffff
+    classDef awsClass fill:#134e4a,stroke:#14b8a6,stroke-width:3px,color:#ffffff
     
     class User,DevTeam userClass
     class GitHub,CodeBuild,ECR,Pipeline,Approval cicdClass
@@ -334,35 +356,35 @@ graph TB
     <div class="legend">
         <h4>🎨 Architecture Layers</h4>
         <div class="legend-item">
-            <div class="legend-color" style="background: #e1f5fe;"></div>
+            <div class="legend-color" style="background: #1e3a8a;"></div>
             <span>Users & Teams</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #fff3e0;"></div>
+            <div class="legend-color" style="background: #92400e;"></div>
             <span>CI/CD Pipeline</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #f1f8e9;"></div>
+            <div class="legend-color" style="background: #166534;"></div>
             <span>AWS Infrastructure</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #ffebee;"></div>
+            <div class="legend-color" style="background: #991b1b;"></div>
             <span>Security Controls</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #f3e5f5;"></div>
+            <div class="legend-color" style="background: #581c87;"></div>
             <span>Frontend Components</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #e8f5e8;"></div>
+            <div class="legend-color" style="background: #064e3b;"></div>
             <span>API Endpoints</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #fce4ec;"></div>
+            <div class="legend-color" style="background: #be185d;"></div>
             <span>AI Services</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background: #e3f2fd;"></div>
+            <div class="legend-color" style="background: #1e40af;"></div>
             <span>Database Tables</span>
         </div>
     </div>
@@ -373,22 +395,24 @@ graph TB
         const maxZoom = 3;
         const minZoom = 0.5;
         
-        // Initialize Mermaid with enhanced configuration
+        // Initialize Mermaid with dark theme configuration
         mermaid.initialize({
             startOnLoad: true,
-            theme: 'base',
+            theme: 'dark',
             themeVariables: {
-                primaryColor: '#ffffff',
-                primaryTextColor: '#000000',
-                primaryBorderColor: '#000000',
-                lineColor: '#444444',
-                secondaryColor: '#ffffff',
-                tertiaryColor: '#ffffff',
-                background: '#ffffff',
-                mainBkg: '#ffffff',
-                secondBkg: '#ffffff',
+                primaryColor: '#1a1a1a',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#666666',
+                lineColor: '#666666',
+                secondaryColor: '#2a2a2a',
+                tertiaryColor: '#3a3a3a',
+                background: '#111111',
+                mainBkg: '#1a1a1a',
+                secondBkg: '#2a2a2a',
                 fontFamily: 'Segoe UI, sans-serif',
-                fontSize: '14px'
+                fontSize: '14px',
+                textColor: '#ffffff',
+                edgeLabelBackground: '#111111'
             },
             flowchart: {
                 htmlLabels: true,
