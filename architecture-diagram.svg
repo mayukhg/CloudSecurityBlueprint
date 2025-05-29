@@ -90,7 +90,7 @@
 
     <rect x="430" y="210" width="60" height="60" rx="5" fill="#ffcdd2" stroke="#d32f2f" stroke-width="1"/>
     <text x="460" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">🛡️ Headers</text>
-    <text x="460" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">CSP & CORS</text>
+    <text x="460" y="242" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">CSP  CORS</text>
     <text x="460" y="254" text-anchor="middle" font-family="Arial, sans-serif" font-size="8">HSTS</text>
   </g>
 
