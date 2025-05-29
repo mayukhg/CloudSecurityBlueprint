@@ -32,7 +32,7 @@ graph TB
         InputVal[✅ Input Validation<br/>XSS/SQL Prevention]
         AuditLog[📝 Audit Logging<br/>Compliance Trail]
         AuthZ[🔑 Authentication<br/>Authorization]
-        Helmet[🛡️ Security Headers<br/>CSP &amp; CORS]
+        Helmet[🛡️ Security Headers<br/>CSP & CORS]
     end
     
     %% Frontend Layer
@@ -47,11 +47,11 @@ graph TB
     
     %% API Layer
     subgraph API [Backend API - Express + TypeScript]
-        DashboardAPI[/api/dashboard/overview<br/>/api/accounts<br/>/api/security-findings]
-        AIAPI[/api/policy-copilot/explain<br/>/api/remediation/steps<br/>/api/reports/generate]
-        ChatAPI[/api/chat/messages<br/>/api/chat/message]
-        PlaybookAPI[/api/playbooks<br/>/api/playbooks/generate]
-        HealthAPI[/health<br/>Health Check Endpoint]
+        DashboardAPI["/api/dashboard/overview<br/>/api/accounts<br/>/api/security-findings"]
+        AIAPI["/api/policy-copilot/explain<br/>/api/remediation/steps<br/>/api/reports/generate"]
+        ChatAPI["/api/chat/messages<br/>/api/chat/message"]
+        PlaybookAPI["/api/playbooks<br/>/api/playbooks/generate"]
+        HealthAPI["/health<br/>Health Check Endpoint"]
     end
     
     %% Business Logic Layer
@@ -66,11 +66,11 @@ graph TB
     
     %% Database Layer
     subgraph DB [PostgreSQL Database]
-        Users[(👥 users<br/>Authentication)]
-        Accounts[(🏢 accounts<br/>AWS Account Metrics)]
-        Findings[(🚨 security_findings<br/>Vulnerabilities)]
-        Messages[(💬 chat_messages<br/>Conversation History)]
-        PlaybookDB[(📚 playbooks<br/>Security Procedures)]
+        Users[👥 users<br/>Authentication]
+        Accounts[🏢 accounts<br/>AWS Account Metrics]
+        Findings[🚨 security_findings<br/>Vulnerabilities]
+        Messages[💬 chat_messages<br/>Conversation History]
+        PlaybookDB[📚 playbooks<br/>Security Procedures]
     end
     
     %% AWS Integration
